@@ -1,0 +1,130 @@
+﻿@model HospitalManagementSystem.Models.Appointment
+
+<h2>Book Appointment</h2>
+
+<form asp-action="Create" method="post">
+    <input type="hidden" id="StartTime" name="StartTime" />
+    <input type="hidden" id="EndTime" name="EndTime" />
+    <div class="form-group">
+        <label>Patient:</label>
+        <select asp-for="PatientId" class="form-control" required>
+            @foreach (var patient in ViewBag.Patients)
+            {
+                <option value="@patient.PatientId">@patient.FullName</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Doctor:</label>
+        <select id="DoctorId" asp-for="DoctorId" class="form-control" required>
+            @foreach (var doctor in ViewBag.Doctors)
+            {
+                <option value="@doctor.DoctorId">@doctor.FullName</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Appointment Date:</label>
+        <input id="AppointmentDate" asp-for="AppointmentDate" type="date" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label>Available Slots:</label>
+        <select id="AvailableSlots" class="form-control" name="AppointmentTime" required>
+            <option value="">-- Select Slot --</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Emergency Appointment?</label>
+        <input asp-for="IsEmergency" type="checkbox" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Book Appointment</button>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // ✅ Filter doctors based on selected team
+        $("#TeamId").change(function () {
+            const teamId = $(this).val();
+
+            $("#DoctorId").empty().append("<option value=''>-- Select Doctor --</option>");
+
+            if (teamId) {
+                $.ajax({
+                    url: `/Doctor/GetDoctorsByTeam?teamId=${teamId}`,
+                    type: "GET",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.length > 0) {
+                            $.each(data, function (index, doctor) {
+                                $("#DoctorId").append(`<option value="${doctor.doctorId}">${doctor.fullName}</option>`);
+                            });
+                        } else {
+                            $("#DoctorId").append("<option value=''>No doctors available</option>");
+                        }
+                    },
+                    error: function () {
+                        $("#DoctorId").html("<option value=''>Failed to load doctors</option>");
+                    }
+                });
+            }
+        });
+
+        // ✅ Load available slots for the selected doctor and date
+        $("#DoctorId, #AppointmentDate").change(function () {
+            const doctorId = $("#DoctorId").val();
+            const date = $("#AppointmentDate").val();
+
+            $("#AvailableSlots").empty().append("<option>Loading slots...</option>");
+
+            if (doctorId && date) {
+                $.ajax({
+                    url: `/Appointment/GetAvailableSlots?doctorId=${doctorId}&date=${date}`,
+                    type: "GET",
+                    dataType: "json",
+                    success: function (data) {
+                        $("#AvailableSlots").empty().append("<option value=''>-- Select Slot --</option>");
+
+                        if (data.length > 0) {
+                            $.each(data, function (index, slot) {
+                                $("#AvailableSlots").append(`<option value="${slot}">${slot}</option>`);
+                            });
+                        } else {
+                            $("#AvailableSlots").append("<option value=''>No slots available</option>");
+                        }
+                    },
+                    error: function () {
+                        $("#AvailableSlots").html("<option value=''>Failed to load slots</option>");
+                    }
+                });
+            }
+        });
+        $("#AvailableSlots").change(function () {
+        var selectedSlot = $(this).val();  // Get the selected value (e.g., "09:00 - 10:00")
+
+        if (selectedSlot) {
+            // Trim any extra spaces and split the value into startTime and endTime based on " - "
+            var slotTimes = selectedSlot.trim().split(' - ');  // Split at the " - "
+
+            if (slotTimes.length === 2) {
+                var startTime = slotTimes[0];  // First part will be the start time (e.g., "09:00")
+                var endTime = slotTimes[1];    // Second part will be the end time (e.g., "10:00")
+
+                // Set the hidden fields for StartTime and EndTime
+                $("#StartTime").val(startTime);  // Set start time in hidden field
+                $("#EndTime").val(endTime);      // Set end time in hidden field
+
+                console.log("Start Time: " + startTime);
+                console.log("End Time: " + endTime);
+            } else {
+                console.error("Invalid slot format.");
+            }
+        }
+    });
+    });
+</script>

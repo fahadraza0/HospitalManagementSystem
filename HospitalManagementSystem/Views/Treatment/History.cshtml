@@ -1,0 +1,56 @@
+﻿@model IEnumerable<HospitalManagementSystem.Models.TreatmentRecord>
+
+<h2>Medical History for @ViewBag.PatientName</h2>
+
+<table class="table table-bordered table-striped" id="medicalHistoryTable">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Doctor</th>
+            <th>Diagnosis</th>
+            <th>Prescriptions</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var record in Model)
+        {
+            <tr>
+                <!-- Format TreatmentDate to a readable format -->
+                <td>@record.TreatmentDate.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@record.Doctor.FullName</td>
+                <td>@record.Diagnosis</td>
+                @* <td>@record.Prescriptions</td> *@
+                <td>
+                    <!-- Add action buttons for Edit and Delete -->
+                    <a href="@Url.Action("Edit", "Treatment", new { id = record.RecordId })" class="btn btn-primary btn-sm">Edit</a>
+                    <a href="@Url.Action("Delete", "Treatment", new { id = record.RecordId })" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Add Button to Add New Treatment Record -->
+<a href="@Url.Action("Create", "Treatment", new { patientId = ViewBag.PatientId })" class="btn btn-success">Add New Treatment Record</a>
+
+
+
+<script>
+        $(document).ready(function() {
+        $('#medicalHistoryTable').DataTable({
+            "paging": true,
+            "lengthMenu": [10, 25, 50, 100],
+            "ordering": true,
+            "info": true,
+            "responsive": true,
+            "language": {
+                "search": "🔍 Search:",
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                "infoEmpty": "No entries available",
+                "zeroRecords": "No matching records found"
+            }
+        });
+    });
+</script>

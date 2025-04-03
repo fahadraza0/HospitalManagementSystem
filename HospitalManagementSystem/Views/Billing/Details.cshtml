@@ -1,0 +1,48 @@
+﻿@* @model HospitalManagementSystem.Models.Billing
+@{
+    ViewData["Title"] = "Billing Details";
+}
+
+<h2>Billing Details</h2>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        Patient: @Model.Patient.FullName
+    </div>
+    <div class="card-body">
+        <p><strong>Doctor:</strong> @Model.Doctor.FullName</p>
+        <p><strong>Total Amount:</strong> @Model.TotalAmount.ToString("C")</p>
+        <p>
+            <strong>Status:</strong>
+            <span class="badge @(Model.IsPaid ? "bg-success" : "bg-danger")">
+                @(Model.IsPaid ? "Paid" : "Unpaid")
+            </span>
+        </p>
+
+        <h4>Medicines</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Medicine</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var medicine in Model.TreatmentMedicines)
+                {
+                    <tr>
+                        <td>@medicine.Medicine.Name</td>
+                        <td>@medicine.Quantity</td>
+                        <td>@medicine.Medicine.Price.ToString("C")</td>
+                        <td>@(medicine.Quantity * medicine.Medicine.Price).ToString("C")</td>
+                    </tr>
+                }
+			</tbody>
+		</table>
+
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>
+	</div>
+</div>
+ *@

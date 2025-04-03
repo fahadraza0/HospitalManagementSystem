@@ -1,0 +1,54 @@
+﻿@model IEnumerable<HospitalManagementSystem.Models.Appointment>
+
+@{
+    ViewData["Title"] = "Emergency Consultation Requests";
+}
+
+<h2>Emergency Consultation Requests</h2>
+
+<table class="table table-bordered" id="emergencyReportTable">
+    <thead>
+        <tr>
+            <th>Patient</th>
+            <th>Doctor</th>
+            <th>Appointment Date</th>
+            <th>Slot</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var request in Model)
+        {
+            <tr>
+                <td>@request.Patient.FullName</td>
+                <td>@request.Doctor.FullName</td>
+                <td>@request.AppointmentDate.ToShortDateString()</td>
+                <td>
+                    @(new DateTime().Add(request.StartTime).ToString("hh:mm tt")) -
+                    @(new DateTime().Add(request.EndTime).ToString("hh:mm tt"))
+                </td>
+                <td>
+                    <span class="badge bg-danger">Emergency</span>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+        $(document).ready(function() {
+        $('#emergencyReportTable').DataTable({
+            "paging": true,
+            "lengthMenu": [10, 25, 50, 100],
+            "ordering": true,
+            "info": true,
+            "responsive": true,
+            "language": {
+                "search": "🔍 Search:",
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                "infoEmpty": "No entries available",
+                "zeroRecords": "No matching records found"
+            }
+        });
+    });
+</script>

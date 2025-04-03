@@ -1,0 +1,89 @@
+﻿@model HospitalManagementSystem.Models.Appointment
+<h2>Book Appointment</h2>
+
+<form asp-action="Book" method="post" class="mt-4">
+	<input type="hidden" asp-for="PatientId" value="@ViewBag.PatientId" />
+
+	<!-- Hidden fields for start and end time -->
+	<input type="hidden" id="StartTime" name="StartTime" />
+	<input type="hidden" id="EndTime" name="EndTime" />
+
+	<div class="form-group">
+		<label>Doctor:</label>
+		<select id="DoctorId" asp-for="DoctorId" class="form-control" required>
+			<option value="">-- Select Doctor --</option>
+			@foreach (var doctor in ViewBag.Doctors)
+			{
+				<option value="@doctor.DoctorId">@doctor.FullName</option>
+			}
+		</select>
+	</div>
+
+	<div class="form-group">
+		<label>Appointment Date:</label>
+		<input asp-for="AppointmentDate" type="date" class="form-control" required />
+	</div>
+
+	<div class="form-group">
+		<label>Available Slots:</label>
+		<select id="AvailableSlots" class="form-control" required>
+			<option value="">-- Select Slot --</option>
+		</select>
+	</div>
+
+	<div class="form-group form-check">
+		<input asp-for="IsEmergency" type="checkbox" class="form-check-input" />
+		<label class="form-check-label">Emergency Appointment</label>
+	</div>
+
+	<button type="submit" class="btn btn-primary">Book Appointment</button>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+	$(document).ready(function () {
+		// Fetch available slots when a doctor is selected
+		$("#DoctorId").change(function () {
+			var doctorId = $(this).val();
+			if (doctorId) {
+				$.ajax({
+					url: `/Appointment/GetAvailableSlots?doctorId=${doctorId}`,
+					type: "GET",
+					success: function (data) {
+
+						console.log(data);
+						$("#AvailableSlots").empty().append("<option value=''>-- Select Slot --</option>");
+						$.each(data, function (index, slot) {
+						$("#AvailableSlots").append(`<option value="${slot}">${slot}</option>`);
+					});
+					}
+				});
+			} else {
+				$("#AvailableSlots").html("<option value=''>-- Select Slot --</option>");
+			}
+		});
+			$("#AvailableSlots").change(function () {
+		var selectedSlot = $(this).val();  // Get the selected value (e.g., "09:00 - 10:00")
+
+		if (selectedSlot) {
+			// Trim any extra spaces and split the value into startTime and endTime based on " - "
+			var slotTimes = selectedSlot.trim().split(' - ');  // Split at the " - "
+
+			if (slotTimes.length === 2) {
+				var startTime = slotTimes[0];  // First part will be the start time (e.g., "09:00")
+				var endTime = slotTimes[1];    // Second part will be the end time (e.g., "10:00")
+
+				// Set the hidden fields for StartTime and EndTime
+				$("#StartTime").val(startTime);  // Set start time in hidden field
+				$("#EndTime").val(endTime);      // Set end time in hidden field
+
+				console.log("Start Time: " + startTime);
+				console.log("End Time: " + endTime);
+			} else {
+				console.error("Invalid slot format.");
+			}
+		}
+	});
+	});
+</script>

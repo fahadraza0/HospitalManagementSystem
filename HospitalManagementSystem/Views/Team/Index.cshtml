@@ -1,0 +1,49 @@
+﻿@model IEnumerable<HospitalManagementSystem.Models.Team>
+
+<h2>Teams</h2>
+<a href="@Url.Action("Create", "Team")" class="btn btn-primary">Create New Team</a>
+
+<table class="table" id="teamTable">
+    <thead>
+        <tr>
+            <th>Team Name</th>
+            <th>Doctors</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var team in Model)
+        {
+            <tr>
+                <td>@team.TeamName</td>
+                <td>
+                    @foreach (var doctor in team.Doctors)
+                    {
+                        <p>@doctor.FullName</p>
+                    }
+                </td>
+                <td>
+                    <a href="@Url.Action("AddDoctor", "Team", new { teamId = team.TeamId })" class="btn btn-info">Add Doctor</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+        $(document).ready(function() {
+        $('#teamTable').DataTable({
+            "paging": true,
+            "lengthMenu": [10, 25, 50, 100],
+            "ordering": true,
+            "info": true,
+            "responsive": true,
+            "language": {
+                "search": "🔍 Search:",
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                "infoEmpty": "No entries available",
+                "zeroRecords": "No matching records found"
+            }
+        });
+    });
+</script>

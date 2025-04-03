@@ -1,0 +1,35 @@
+﻿@model HospitalManagementSystem.Models.Doctor
+
+<h2>Schedule Availability for Dr. @Model.FullName</h2>
+<form asp-action="Schedule" method="post">
+    <input type="hidden" name="doctorId" value="@Model.DoctorId" />
+
+    <label>Start Time:</label>
+    <input type="datetime-local" name="startTime" class="form-control" required />
+
+    <label>End Time:</label>
+    <input type="datetime-local" name="endTime" class="form-control" required />
+
+    <button type="submit" class="btn btn-primary">Save Schedule</button>
+</form>
+
+<h3>Existing Schedules</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var schedule in Model.Schedules)
+        {
+            <tr>
+                <td>@schedule.StartTime</td>
+                <td>@schedule.EndTime</td>
+                <td>@(schedule.IsBooked ? "Booked" : "Available")</td>
+            </tr>
+        }
+    </tbody>
+</table>

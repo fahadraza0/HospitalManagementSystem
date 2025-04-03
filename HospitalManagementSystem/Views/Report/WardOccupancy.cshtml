@@ -1,0 +1,47 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Ward Occupancy";
+}
+
+<h2>Ward Occupancy</h2>
+
+<table class="table table-striped" id="wardReportTable">
+    <thead>
+        <tr>
+            <th>Ward Name</th>
+            <th>Total Beds</th>
+            <th>Occupied Beds</th>
+            <th>Available Beds</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ward in Model)
+        {
+            <tr>
+                <td>@ward.WardName</td>
+                <td>@ward.TotalBeds</td>
+                <td>@ward.OccupiedBeds</td>
+                <td>@ward.AvailableBeds</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+        $(document).ready(function() {
+        $('#wardReportTable').DataTable({
+            "paging": true,
+            "lengthMenu": [10, 25, 50, 100],
+            "ordering": true,
+            "info": true,
+            "responsive": true,
+            "language": {
+                "search": "🔍 Search:",
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                "infoEmpty": "No entries available",
+                "zeroRecords": "No matching records found"
+            }
+        });
+    });
+</script>

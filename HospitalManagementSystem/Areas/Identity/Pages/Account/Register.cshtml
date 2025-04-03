@@ -1,0 +1,196 @@
+﻿@page
+@model RegisterModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Register";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #74EBD5, #ACB6E5);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            margin: 0;
+        }
+        .register-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            max-width: 1100px;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+        }
+        .register-left {
+            background: #007bff;
+            color: white;
+            padding: 60px 40px;
+            width: 40%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+        .register-left h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        .register-left p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+        .register-left i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        .register-right {
+            padding: 60px 50px;
+            padding-top: 350px;
+            width: 60%;
+        }
+        h1 {
+            font-size: 2.5rem;
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-floating label {
+            color: #6c757d;
+        }
+        .btn-primary {
+            background: #007bff;
+            border: none;
+            transition: background 0.3s;
+        }
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+        .form-check-input {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="register-container">
+
+    <!-- ✅ Left Section (Welcome Text) -->
+    <div class="register-left">
+        <i class="fas fa-user-plus"></i>
+        <h2>Register as a Patient</h2>
+        <p>Get access to hospital management services, book appointments, and view your medical history.</p>
+    </div>
+
+    <!-- ✅ Right Section (Registration Form) -->
+    <div class="register-right">
+        <h1>@ViewData["Title"]</h1>
+
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- ✅ Email -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="Email" />
+                <label asp-for="Input.Email">Email</label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <!-- ✅ Password -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Password" type="password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Password" />
+                <label asp-for="Input.Password">Password</label>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <!-- ✅ Confirm Password -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.ConfirmPassword" type="password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Confirm Password" />
+                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <hr />
+
+            <h4 class="mb-4">Patient Information</h4>
+
+            <!-- ✅ Full Name -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.FullName" class="form-control" placeholder="Enter full name" required />
+                <label asp-for="Input.FullName">Full Name</label>
+                <span asp-validation-for="Input.FullName" class="text-danger"></span>
+            </div>
+
+            <!-- ✅ Phone Number -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Enter phone number" required />
+                <label asp-for="Input.PhoneNumber">Phone Number</label>
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <!-- ✅ Address -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Address" class="form-control" placeholder="Enter address" required />
+                <label asp-for="Input.Address">Address</label>
+                <span asp-validation-for="Input.Address" class="text-danger"></span>
+            </div>
+
+            <!-- ✅ Date of Birth -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.DateOfBirth" type="date" class="form-control" required />
+                <label asp-for="Input.DateOfBirth">Date of Birth</label>
+                <span asp-validation-for="Input.DateOfBirth" class="text-danger"></span>
+            </div>
+
+            <!-- ✅ Gender -->
+            <div class="form-floating mb-3">
+                <select asp-for="Input.Gender" class="form-control">
+                    <option>Male</option>
+                    <option>Female</option>
+                </select>
+                <label asp-for="Input.Gender">Gender</label>
+                <span asp-validation-for="Input.Gender" class="text-danger"></span>
+            </div>
+
+            <!-- ✅ Register Button -->
+            <div class="d-grid">
+                <button id="registerSubmit" type="submit" class="btn btn-primary">Register</button>
+            </div>
+
+            <div class="mt-4 text-center">
+                <p>Already have an account? <a asp-page="./Login">Login here</a></p>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+}
+
+</body>
+</html>

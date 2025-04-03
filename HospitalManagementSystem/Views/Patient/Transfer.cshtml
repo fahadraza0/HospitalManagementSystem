@@ -1,0 +1,54 @@
+﻿@model HospitalManagementSystem.Models.Patient
+
+<h2 class="mb-4">Transfer Patient</h2>
+
+<form asp-action="Transfer" method="post" class="row g-3">
+    <input type="hidden" name="id" value="@Model.PatientId" />
+
+    <!-- Select New Ward -->
+    <div class="col-md-6">
+        <label for="newWardId" class="form-label">Select New Ward:</label>
+        <select id="newWardId" name="newWardId" class="form-select" required onchange="loadBeds(this.value)">
+            <option value="">-- Select Ward --</option>
+            @foreach (var ward in ViewBag.Wards)
+            {
+                <option value="@ward.WardId">@ward.WardName (Capacity: @ward.Capacity, Occupancy: @ward.CurrentOccupancy)</option>
+            }
+        </select>
+    </div>
+
+    <!-- Select New Bed -->
+    <div class="col-md-6">
+        <label for="newBedId" class="form-label">Select New Bed:</label>
+        <select id="newBedId" name="newBedId" class="form-select" required>
+            <option value="">-- Select Bed --</option>
+        </select>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Transfer</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+<!-- JavaScript for Dynamic Bed Loading -->
+<script>
+    function loadBeds(wardId) {
+        const bedSelect = document.getElementById('newBedId');
+        bedSelect.innerHTML = '<option value="">Loading beds...</option>';
+
+        fetch(`/Ward/GetAvailableBeds?wardId=${wardId}`)
+            .then(response => response.json())
+            .then(beds => {
+                bedSelect.innerHTML = '<option value="">-- Select Bed --</option>';
+                beds.forEach(bed => {
+                    bedSelect.innerHTML += `<option value="${bed.bedId}">Bed ${bed.bedNumber} (Ward: ${bed.wardName})</option>`;
+                });
+            })
+            .catch(error => {
+                console.error('Error loading beds:', error);
+                bedSelect.innerHTML = '<option value="">Error loading beds</option>';
+            });
+    }
+</script>

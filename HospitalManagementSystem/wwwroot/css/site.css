@@ -1,0 +1,267 @@
+﻿body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+    transition: background 0.3s;
+}
+header {
+    position: inherit;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030; /* Ensure navbar stays on top */
+    width: 100%;
+}
+
+/* 🌟 Navbar Styling */
+.navbar {
+    background: linear-gradient(135deg, #005f73, #0a9396);
+    color: #fff;
+}
+
+    .navbar .nav-link {
+        color: #fff !important;
+        transition: all 0.3s;
+    }
+
+        .navbar .nav-link:hover {
+            color: #ffba08 !important;
+        }
+
+.navbar-brand {
+    padding-left: 60px;
+    font-weight: bold;
+}
+
+/* 🌟 Sidebar Styling */
+.container-wrapper {
+    display: flex;
+    flex: 1;
+}
+
+.sidebar {
+    padding-top: 50px;
+    width: 250px;
+    background: linear-gradient(135deg, #005f73, #0a9396);
+    color: #ffffff;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+    transition: all 0.3s;
+}
+
+    .sidebar .nav-link {
+        color: #ffffff;
+        font-size: 16px;
+        padding: 10px 20px;
+        display: block;
+        transition: all 0.3s;
+    }
+
+        .sidebar .nav-link:hover {
+            background: #ffba08;
+            color: #000;
+        }
+
+    .sidebar .nav-item.active .nav-link {
+        background: #ffba08;
+        color: #000 !important;
+        font-weight: bold;
+    }
+
+/* 🌟 Main Content Styling */
+.main-content {
+    flex: 1;
+    padding: 30px;
+    transition: all 0.3s;
+    padding-top:60px;
+    margin-left: 250px; /* Initially space for sidebar */
+}
+
+/* 🌟 Footer Styling */
+.footer {
+    background: #0a9396;
+    color: #ffffff;
+    text-align: center;
+    padding: 15px 0;
+    margin-top: auto;
+}
+
+    .footer a {
+        color: #ffba08;
+        text-decoration: none;
+    }
+
+        .footer a:hover {
+            color: #ffffff;
+        }
+
+/* 🌙 Dark Mode */
+body.dark-mode {
+    background: #1e1e1e;
+    color: #f5f5f5;
+}
+
+    body.dark-mode .navbar,
+    body.dark-mode .footer,
+    body.dark-mode .sidebar {
+        background: #333;
+    }
+
+    body.dark-mode .nav-link {
+        color: #f5f5f5 !important;
+    }
+
+        body.dark-mode .nav-link:hover {
+            background: #ffba08;
+            color: #000;
+        }
+
+/* 🌟 Toggle Button */
+.dark-mode-toggle {
+    background: transparent;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+/* 🌟 Table Styling */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+    .table th, .table td {
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        text-align: left;
+        transition: all 0.3s;
+    }
+
+/* 🌙 Dark Mode Table */
+body.dark-mode .table {
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #555;
+}
+
+    body.dark-mode .table th {
+        background: #444;
+        color: #ffba08;
+    }
+
+    body.dark-mode .table td {
+        background: #555;
+        color: #f5f5f5;
+    }
+
+    body.dark-mode .table tr:hover {
+        background: #666;
+    }
+
+/* Style the hamburger menu container */
+.hamburger-menu {
+    position: fixed;
+    top: 15px; /* Position from top */
+    left: 15px; /* Position from left */
+    z-index: 1050; /* Ensure it's above other elements */
+    background: #005f73; /* Background color */
+    border-radius: 50%; /* Make it circular */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+    /* Style the button inside */
+    .hamburger-menu button {
+        width: 40px; /* Smaller width */
+        height: 40px; /* Smaller height */
+        padding: 5px; /* Add padding for spacing */
+        background: transparent; /* Transparent background */
+        border: none; /* Remove border */
+        display: flex; /* Center the icon */
+        justify-content: center;
+        align-items: center;
+        cursor: pointer; /* Show pointer on hover */
+    }
+
+    /* Style the icon */
+    .hamburger-menu .navbar-toggler-icon {
+        width: 20px; /* Smaller icon width */
+        height: 20px; /* Smaller icon height */
+        filter: invert(1); /* Make icon white */
+    }
+
+    /* Hover effect */
+    .hamburger-menu:hover {
+        background: #0a9396; /* Slightly lighter on hover */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        transform: scale(1.1); /* Slightly enlarge on hover */
+    }
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .hamburger-menu {
+        top: 10px;
+        left: 10px;
+    }
+
+        .hamburger-menu button {
+            width: 35px;
+            height: 35px;
+        }
+}
+
+@media (max-width: 768px) {
+    /* Show hamburger icon on small screens */
+    .main-content {
+        margin-left: 0; /* No margin for main content when sidebar is hidden */
+    }
+
+        .main-content.collapsed {
+            margin-left: 250px; /* Space for sidebar */
+        }
+
+    .sidebar.hide {
+        transform: translateX(-250px); /* Hide sidebar */
+    }
+
+    .sidebar.show {
+        transform: translateX(0); /* Show sidebar */
+    }
+}
+.sidebar {
+    width: 250px;
+    background-color: #333;
+    color: white;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transition: transform 0.3s ease-in-out;
+}
+
+    .sidebar.hide {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+    }
+
+.main-content {
+    margin-left: 250px;
+    transition: margin-left 0.3s ease-in-out;
+}
+
+    .main-content.collapsed {
+        margin-left: 0;
+    }
+

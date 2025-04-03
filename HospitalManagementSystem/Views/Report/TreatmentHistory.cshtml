@@ -1,0 +1,45 @@
+﻿@model IEnumerable<HospitalManagementSystem.Models.TreatmentRecord>
+
+<h2>Treatment History</h2>
+
+<table class="table" id="treatmentHistoryTable">
+    <thead>
+        <tr>
+            <th>Patient</th>
+            <th>Doctor</th>
+            <th>Diagnosis</th>
+            <th>Prescriptions</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var record in Model)
+        {
+            <tr>
+                <td>@record.Patient.FullName</td>
+                <td>@record.Doctor.FullName</td>
+                <td>@record.Diagnosis</td>
+                @* <td>@record.Prescriptions</td> *@
+                <td>@record.TreatmentDate</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+        $(document).ready(function() {
+        $('#treatmentHistoryTable').DataTable({
+            "paging": true,
+            "lengthMenu": [10, 25, 50, 100],
+            "ordering": true,
+            "info": true,
+            "responsive": true,
+            "language": {
+                "search": "🔍 Search:",
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                "infoEmpty": "No entries available",
+                "zeroRecords": "No matching records found"
+            }
+        });
+    });
+</script>

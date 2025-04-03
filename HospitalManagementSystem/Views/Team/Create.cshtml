@@ -1,0 +1,14 @@
+﻿@model HospitalManagementSystem.Models.Team
+
+<h2>Create Team</h2>
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label for="Name">Team Name</label>
+        <input asp-for="TeamName" class="form-control" required />
+        <span asp-validation-for="TeamName" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+<a href="@Url.Action("Index", "Team")" class="btn btn-secondary">Back to Teams</a>

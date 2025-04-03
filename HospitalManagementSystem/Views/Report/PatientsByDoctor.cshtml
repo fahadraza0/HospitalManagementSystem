@@ -1,0 +1,46 @@
+﻿@model IEnumerable<HospitalManagementSystem.Models.Doctor>
+
+<h2>Patients By Doctor</h2>
+
+<table class="table" id="patientsByDoctorTable">
+    <thead>
+        <tr>
+            <th>Doctor</th>
+            <th>Specialization</th>
+            <th>Patients</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var doctor in Model)
+        {
+            <tr>
+                <td>@doctor.FullName</td>
+                <td>@doctor.Specialization</td>
+                <td>
+                    @foreach (var patient in doctor.Patients)
+                    {
+                        <p>@patient.FullName</p>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    $(document).ready(function() {
+           $('#patientsByDoctorTable').DataTable({
+               "paging": true,
+               "lengthMenu": [10, 25, 50, 100],
+               "ordering": true,
+               "info": true,
+               "responsive": true,
+               "language": {
+                   "search": "🔍 Search:",
+                   "lengthMenu": "Show _MENU_ entries",
+                   "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                   "infoEmpty": "No entries available",
+                   "zeroRecords": "No matching records found"
+               }
+           });
+       });
+</script>

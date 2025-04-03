@@ -1,0 +1,23 @@
+﻿@model HospitalManagementSystem.Models.Team
+
+<h2>Add Doctor to Team: @Model.TeamName</h2>
+<form asp-action="AddDoctor" method="post">
+    <!-- Hidden field for TeamId -->
+    <input type="hidden" name="teamId" value="@Model.TeamId" />
+
+    <div class="form-group">
+        <label for="DoctorId">Select Doctor</label>
+        <select name="doctorId" class="form-control" required>
+            <option value="">-- Select Doctor --</option>
+            @foreach (var doctor in ViewBag.Doctors as IEnumerable<HospitalManagementSystem.Models.Doctor>)
+            {
+                <option value="@doctor.DoctorId">@doctor.FullName</option>
+            }
+        </select>
+        <span asp-validation-for="TeamName" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Doctor</button>
+</form>
+
+<a href="@Url.Action("Index", "Team")" class="btn btn-secondary">Back to Teams</a>

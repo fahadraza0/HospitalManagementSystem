@@ -1,0 +1,46 @@
+﻿@model IEnumerable<HospitalManagementSystem.Models.Appointment>
+
+@{
+    ViewData["Title"] = "Appointment Reports";
+}
+
+<h2>Appointment Reports</h2>
+
+<table class="table table-striped" id="appointmentReportsTable">
+    <thead>
+        <tr>
+            <th>Patient</th>
+            <th>Doctor</th>
+            <th>Appointment Date</th>
+            <th>Slot</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var appt in Model)
+        {
+            <tr>
+                <td>@appt.Patient.FullName</td>
+                <td>@appt.Doctor.FullName</td>
+                <td>@appt.AppointmentDate.ToShortDateString()</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+        $(document).ready(function() {
+        $('#appointmentReportsTable').DataTable({
+            "paging": true,
+            "lengthMenu": [10, 25, 50, 100],
+            "ordering": true,
+            "info": true,
+            "responsive": true,
+            "language": {
+                "search": "🔍 Search:",
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                "infoEmpty": "No entries available",
+                "zeroRecords": "No matching records found"
+            }
+        });
+    });
+</script>

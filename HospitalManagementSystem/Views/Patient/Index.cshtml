@@ -1,0 +1,62 @@
+﻿<body>
+    <h2>Patient List</h2>
+    <a asp-action="Create" class="btn btn-primary">Register Patient</a>
+
+    <table id="patientTable" class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Doctor</th>
+                <th>Ward</th>
+                <th>Status</th>
+                <th>Document</th>
+                <th>Actions</th>
+                <th>Medical History</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var patient in Model)
+            {
+                <tr>
+                    <td>@patient.FullName</td>
+                    <td>@(patient.AssignedDoctor?.FullName ?? "Not Assigned")</td>
+                    <td>@(patient.Ward?.WardName ?? "Not Assigned")</td>
+                    <td>@patient.Status</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(patient.DocumentPath))
+                        {
+                            <a href="@patient.DocumentPath" target="_blank">View Document</a>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Discharge" asp-route-id="@patient.PatientId" class="btn btn-warning">Discharge</a>
+                        <a asp-action="Transfer" asp-route-id="@patient.PatientId" class="btn btn-info">Transfer</a>
+                    </td>
+                    <td>
+                        <a asp-controller="Treatment" asp-action="History" asp-route-patientId="@patient.PatientId" class="btn btn-info">Medical History</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <script>
+        // Initialize DataTable
+        $(document).ready(function() {
+            $('#patientTable').DataTable({
+                "paging": true,
+                "lengthMenu": [10, 25, 50, 100],
+                "ordering": true,
+                "info": true,
+                "responsive": true,
+                "language": {
+                    "search": "🔍 Search:",
+                    "lengthMenu": "Show _MENU_ entries",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "No entries available",
+                    "zeroRecords": "No matching records found"
+                }
+            });
+        });
+    </script>
+</body>

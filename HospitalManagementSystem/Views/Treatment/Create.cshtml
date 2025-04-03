@@ -1,0 +1,83 @@
+﻿@model HospitalManagementSystem.Models.TreatmentRecord
+
+<h2>Add Treatment Record for Patient</h2>
+
+<form asp-action="Create" method="post">
+	<!-- Select Doctor -->
+	<div class="form-group">
+		<label for="DoctorId">Doctor</label>
+		<select id="DoctorId" asp-for="DoctorId" class="form-control" required>
+			<option value="">-- Select Doctor --</option>
+			@foreach (var doctor in ViewBag.Doctors as IEnumerable<HospitalManagementSystem.Models.Doctor>)
+			{
+				<option value="@doctor.DoctorId">@doctor.FullName</option>
+			}
+		</select>
+	</div>
+
+	<!-- Select Patient based on the selected Doctor -->
+	<div class="form-group">
+		<label for="PatientId">Patient</label>
+		<select id="PatientId" asp-for="PatientId" class="form-control" required>
+			<option value="">-- Select Patient --</option>
+		</select>
+	</div>
+
+	<div class="form-group">
+		<label for="Diagnosis">Diagnosis</label>
+		<input asp-for="Diagnosis" class="form-control" required />
+	</div>
+
+	@* <div class="form-group">
+		<label for="Prescriptions">Prescriptions</label>
+		<textarea asp-for="Prescriptions" class="form-control" required></textarea>
+	</div> *@
+
+	<button type="submit" class="btn btn-primary">Save Treatment Record</button>
+</form>
+
+<a href="@Url.Action("History", "Treatment", new { patientId = ViewBag.PatientId })" class="btn btn-secondary">Back to History</a>
+
+<!-- jQuery and custom script for dynamic dropdown -->
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+	$(document).ready(function () {
+		// Event listener for doctor selection change
+		$('#DoctorId').change(function () {
+			var doctorId = $(this).val();
+
+			// Clear previous patients
+			$('#PatientId').empty().append("<option value=''>-- Select Patient --</option>");
+
+			// If a doctor is selected, load patients assigned to this doctor
+			if (doctorId) {
+				$.ajax({
+					url: '/Treatment/GetPatientsByDoctor?doctorId=' + doctorId,  // Ensure this URL matches the controller's action
+					type: 'GET',
+					dataType: 'json',
+					success: function (data) {
+						console.log(data); // Log the data structure to check its properties
+						alert(JSON.stringify(data));
+						$('#PatientId').empty().append('<option value="">-- Select Patient --</option>');
+
+						if (data && data.length > 0) {
+							$.each(data, function (index, patient) {
+								console.log(patient); // Log each patient object to check its structure
+								if (patient.patientId && patient.fullName) {  // Match the lowercase property names
+									$('#PatientId').append('<option value="' + patient.patientId + '">' + patient.fullName + '</option>');
+								} else {
+									console.error('Patient missing expected properties:', patient);
+								}
+							});
+						} else {
+							$('#PatientId').append("<option value=''>No patients assigned to this doctor</option>");
+						}
+					},
+					error: function () {
+						alert('Error loading patients.');
+					}
+				});
+			}
+		});
+	});
+</script>

@@ -1,0 +1,49 @@
+﻿@model IEnumerable<HospitalManagementSystem.Models.Staff>
+
+@{
+    ViewData["Title"] = "Staff Activity Reports";
+}
+
+<h2>Staff Activity Reports</h2>
+
+<table class="table table-striped" id="staffActivityReportTable">
+    <thead>
+        <tr>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Department</th>
+            <th>Active Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var staff in Model)
+        {
+                <tr>
+                    <td>@staff.FullName</td>
+                    <td>@staff.Email</td>
+                    <td>@staff.PhoneNumber</td>
+                    <td>@staff.Department</td>
+                    <td>@(staff.IsActive ? "Active" : "Inactive")</td>
+                </tr>
+        }
+    </tbody>
+</table>
+<script>
+        $(document).ready(function() {
+        $('#staffActivityReportTable').DataTable({
+            "paging": true,
+            "lengthMenu": [10, 25, 50, 100],
+            "ordering": true,
+            "info": true,
+            "responsive": true,
+            "language": {
+                "search": "🔍 Search:",
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                "infoEmpty": "No entries available",
+                "zeroRecords": "No matching records found"
+            }
+        });
+    });
+</script>

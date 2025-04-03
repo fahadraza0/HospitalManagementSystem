@@ -1,0 +1,29 @@
+﻿@model HospitalManagementSystem.Models.Ward
+
+<h2>Add Ward</h2>
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label class="form-label">Ward Name:</label>
+        <input asp-for="WardName" class="form-control" required />
+        <span asp-validation-for="WardName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Capacity:</label>
+        <input asp-for="Capacity" type="number" class="form-control" min="1" required />
+        <span asp-validation-for="Capacity" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Number of Beds:</label>
+        <input type="number" name="bedCount" class="form-control" min="1" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Ward</button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

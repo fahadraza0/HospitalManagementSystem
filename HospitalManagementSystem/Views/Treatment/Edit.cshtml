@@ -1,0 +1,34 @@
+﻿@model HospitalManagementSystem.Models.TreatmentRecord
+
+<h2>Edit Treatment Record</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="RecordId" />
+    <input type="hidden" asp-for="PatientId" />
+
+    <div class="form-group">
+        <label for="DoctorId">Doctor</label>
+        <select asp-for="DoctorId" class="form-control" required>
+            <option value="">-- Select Doctor --</option>
+            @foreach (var doctor in ViewBag.Doctors as IEnumerable<HospitalManagementSystem.Models.Doctor>)
+            {
+                <option value="@doctor.DoctorId"
+                        selected="@(doctor.DoctorId == Model.DoctorId ? "selected" : "")">
+                    @doctor.FullName
+                </option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="Diagnosis">Diagnosis</label>
+        <input asp-for="Diagnosis" class="form-control" />
+    </div>
+
+    @* <div class="form-group">
+        <label for="Prescriptions">Prescriptions</label>
+        <textarea asp-for="Prescriptions" class="form-control"></textarea>
+    </div> *@
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>

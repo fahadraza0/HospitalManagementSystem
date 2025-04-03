@@ -1,0 +1,16 @@
+﻿@model HospitalManagementSystem.Models.Doctor
+
+<h2>Assign Patient to Dr. @Model.FullName</h2>
+<form asp-action="AssignPatient" method="post">
+    <input type="hidden" name="doctorId" value="@Model.DoctorId" />
+
+    <label>Select Patient:</label>
+    <select name="patientId" class="form-control">
+        @foreach (var patient in ViewBag.Patients as List<HospitalManagementSystem.Models.Patient>)
+        {
+            <option value="@patient.PatientId">@patient.FullName</option>
+        }
+    </select>
+
+    <button type="submit" class="btn btn-primary">Assign</button>
+</form>

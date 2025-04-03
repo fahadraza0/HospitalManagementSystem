@@ -1,0 +1,44 @@
+﻿@model IEnumerable<HospitalManagementSystem.Models.Ward>
+
+<h2>Wards & Occupancy</h2>
+<a asp-action="Create" class="btn btn-primary">Add Ward</a>
+
+<table class="table" id="wardTable">
+    <thead>
+        <tr>
+            <th>Ward</th>
+            <th>Capacity</th>
+            <th>Occupied Beds</th>
+            <th>Available Beds</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ward in Model)
+        {
+            <tr>
+                <td>@ward.WardName</td>
+                <td>@ward.Capacity</td>
+                <td>@ward.Beds.Count(b => b.IsOccupied)</td>
+                <td>@ward.Beds.Count(b => !b.IsOccupied)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+        $(document).ready(function() {
+        $('#wardTable').DataTable({
+            "paging": true,
+            "lengthMenu": [10, 25, 50, 100],
+            "ordering": true,
+            "info": true,
+            "responsive": true,
+            "language": {
+                "search": "🔍 Search:",
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                "infoEmpty": "No entries available",
+                "zeroRecords": "No matching records found"
+            }
+        });
+    });
+</script>

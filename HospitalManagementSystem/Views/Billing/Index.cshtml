@@ -1,0 +1,45 @@
+﻿@* @model IEnumerable<HospitalManagementSystem.Models.Billing>
+@{
+    ViewData["Title"] = "Billing List";
+}
+
+<h2>Billing List</h2>
+
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>Patient</th>
+            <th>Doctor</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var bill in Model)
+        {
+            <tr>
+                <td>@bill.Patient.FullName</td>
+                <td>@bill.Doctor.FullName</td>
+                <td>@bill.TotalAmount.ToString("C")</td>
+                <td>
+                    <span class="badge @(bill.IsPaid ? "bg-success" : "bg-danger")">
+                        @(bill.IsPaid ? "Paid" : "Unpaid")
+                    </span>
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@bill.BillId" class="btn btn-info btn-sm">Details</a>
+
+                    @if (!bill.IsPaid)
+                    {
+                        <form asp-action="MarkAsPaid" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@bill.BillId" />
+                            <button type="submit" class="btn btn-success btn-sm">Mark as Paid</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+ *@
