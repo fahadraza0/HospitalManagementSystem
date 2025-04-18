@@ -37,7 +37,7 @@ namespace HospitalManagementSystem.Controllers
 
             ViewBag.PatientId = patient.PatientId;
             ViewBag.Doctors = await _context.Doctors.Where(d => d.IsAvailable).ToListAsync();
-            ViewData["ActivePage"] = "BookAppointment";
+            ViewData["ActivePage"] = "Appointment";
             return View();
         }
 
@@ -57,6 +57,8 @@ namespace HospitalManagementSystem.Controllers
             {
                 ModelState.AddModelError("", "Selected doctor is not available.");
                 ViewBag.Doctors = await _context.Doctors.Where(d => d.IsAvailable).ToListAsync();
+
+                ViewData["ActivePage"] = "Appointment";
                 return View(appointment);
             }
 
@@ -97,12 +99,14 @@ namespace HospitalManagementSystem.Controllers
             await _context.SaveChangesAsync();
 
             // ✅ Generate bill after booking if confirmed
-            if (appointment.Status == "Confirmed")
-            {
-                //await GenerateBill(appointment);
-            }
+            //if (appointment.Status == "Confirmed")
+            //{
+            //    await GenerateBill(appointment);
+            //}
 
             TempData["SuccessMessage"] = "Appointment booked successfully!";
+
+            ViewData["ActivePage"] = "Appointment";
             return RedirectToAction("Index", "Appointment");
         }
 
@@ -123,7 +127,7 @@ namespace HospitalManagementSystem.Controllers
                 .ThenInclude(d => d.Teams)
                 .ToListAsync();
 
-            ViewData["ActivePage"] = "MyAppointments";
+            ViewData["ActivePage"] = "Appointment";
             return View(appointments);
         }
 
@@ -141,6 +145,7 @@ namespace HospitalManagementSystem.Controllers
                     .ThenInclude(d => d.Teams)
                     .ToListAsync();
 
+                ViewData["ActivePage"] = "Appointment";
                 return View(appointments);
             }
             // Check if the user is a Doctor
@@ -158,6 +163,7 @@ namespace HospitalManagementSystem.Controllers
                     .ThenInclude(d => d.Teams)
                     .ToListAsync();
 
+                ViewData["ActivePage"] = "Appointment";
                 return View(appointments);
             }
             // Check if the user is a Patient
@@ -175,6 +181,7 @@ namespace HospitalManagementSystem.Controllers
                     .ThenInclude(d => d.Teams)
                     .ToListAsync();
 
+                ViewData["ActivePage"] = "Appointment";
                 return View(appointments);
             }
 
@@ -189,6 +196,7 @@ namespace HospitalManagementSystem.Controllers
             ViewBag.Doctors = _context.Doctors.Where(d => d.IsAvailable).ToList();
             ViewBag.Patients = _context.Patients.ToList();
 
+            ViewData["ActivePage"] = "Appointment";
             return View();
         }
 
@@ -222,6 +230,8 @@ namespace HospitalManagementSystem.Controllers
                 ModelState.AddModelError("", "Appointments must be between 9 AM and 5 PM.");
                 ViewBag.Doctors = _context.Doctors.Where(d => d.IsAvailable).ToList();
                 ViewBag.Patients = _context.Patients.ToList();
+
+                ViewData["ActivePage"] = "Appointment";
                 return View(appointment);
             }
 
@@ -238,6 +248,8 @@ namespace HospitalManagementSystem.Controllers
                 ModelState.AddModelError("", "This time slot is already booked. Please choose another slot.");
                 ViewBag.Doctors = _context.Doctors.Where(d => d.IsAvailable).ToList();
                 ViewBag.Patients = _context.Patients.ToList();
+
+                ViewData["ActivePage"] = "Appointment";
                 return View(appointment);
             }
 
@@ -248,12 +260,13 @@ namespace HospitalManagementSystem.Controllers
             await _context.SaveChangesAsync();
 
             // ✅ Generate bill after booking if confirmed
-            if (appointment.Status == "Confirmed")
-            {
-               // await GenerateBill(appointment);
-            }
+            //if (appointment.Status == "Confirmed")
+            //{
+            //    await GenerateBill(appointment);
+            //}
 
             TempData["SuccessMessage"] = "Appointment booked successfully!";
+            ViewData["ActivePage"] = "Appointment";
             return RedirectToAction("Index", "Appointment");
         }
 
@@ -269,6 +282,7 @@ namespace HospitalManagementSystem.Controllers
             //await GenerateBill(appointment);
 
             TempData["SuccessMessage"] = "Appointment confirmed!";
+            ViewData["ActivePage"] = "Appointment";
             return RedirectToAction(nameof(Index));
         }
 
@@ -282,48 +296,51 @@ namespace HospitalManagementSystem.Controllers
                 await _context.SaveChangesAsync();
             }
             TempData["SuccessMessage"] = "Appointment cancelled!";
+            ViewData["ActivePage"] = "Appointment";
             return RedirectToAction(nameof(Index));
         }
 
         // ✅ Generate Bill Logic
-        //private async Task GenerateBill(Appointment appointment)
-        //{
-        //    var doctor = await _context.Doctors.FindAsync(appointment.DoctorId);
-        //    if (doctor != null)
-        //    {
-        //        // Calculate the hours based on appointment start and end times
-        //        var hours = (appointment.EndTime - appointment.StartTime).TotalHours;
+        private async Task GenerateBill(Appointment appointment)
+        {
+            var doctor = await _context.Doctors.FindAsync(appointment.DoctorId);
+            if (doctor != null)
+            {
+                // Calculate the hours based on appointment start and end times
+                var hours = (appointment.EndTime - appointment.StartTime).TotalHours;
 
-        //        // Get the treatment records associated with the appointment
-        //        var treatmentRecords = await _context.TreatmentRecords
-        //            .Where(tr => tr.PatientId == appointment.PatientId && tr.TreatmentDate >= appointment.StartTime && tr.TreatmentDate <= appointment.EndTime)
-        //            .Include(tr => tr.TreatmentMedicines)  // Include the prescribed medicines
-        //            .ToListAsync();
+                var appointmentStartDateTime = appointment.AppointmentDate.Add(appointment.StartTime);
+                var appointmentEndDateTime = appointment.AppointmentDate.Add(appointment.EndTime);
 
-        //        // Calculate the total medicine cost by summing the cost of all medicines in the treatment records
-        //        var medicineCost = treatmentRecords
-        //            .SelectMany(tr => tr.TreatmentMedicines)
-        //            .Sum(tm => tm.TotalCost);
+                var treatmentRecords = await _context.TreatmentRecords
+                    .Where(tr => tr.PatientId == appointment.PatientId &&
+                                 tr.TreatmentDate >= appointment.AppointmentDate)
+                    .Include(tr => tr.TreatmentMedicines)  // Include the prescribed medicines
+                    .ToListAsync();
 
-        //        // Create the bill for the appointment
-        //        var bill = new Billing
-        //        {
-        //            AppointmentId = appointment.AppointmentId,
-        //            PatientId = appointment.PatientId,
-        //            DoctorId = doctor.DoctorId,
-        //            DoctorFee = (decimal)hours * doctor.HourlyRate,
-        //            MedicineCost = medicineCost,
-        //            TotalAmount = (decimal)hours * doctor.HourlyRate + medicineCost,
-        //            CreatedAt = DateTime.Now,
-        //            IsPaid = false // Initial state, can be updated once payment is processed
-        //        };
+                // Calculate the total medicine cost by summing the cost of all medicines in the treatment records
+                var medicineCost = treatmentRecords
+                    .SelectMany(tr => tr.TreatmentMedicines)
+                    .Sum(tm => tm.TotalCost);
 
-        //        // Add the new bill to the database
-        //        _context.Billings.Add(bill);
-        //        await _context.SaveChangesAsync();
-        //    }
-        //}
+                // Create the bill for the appointment
+                var bill = new Billing
+                {
+                    AppointmentId = appointment.AppointmentId,
+                    PatientId = appointment.PatientId,
+                    DoctorId = doctor.DoctorId,
+                    DoctorFee = (decimal)hours * doctor.HourlyRate,
+                    MedicineCost = medicineCost,
+                    TotalAmount = (decimal)hours * doctor.HourlyRate + medicineCost,
+                    CreatedAt = DateTime.Now,
+                    IsPaid = false // Initial state, can be updated once payment is processed
+                };
 
+                // Add the new bill to the database
+                _context.Billings.Add(bill);
+                await _context.SaveChangesAsync();
+            }
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetAvailableSlots(int doctorId, DateTime date)

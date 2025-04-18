@@ -45,6 +45,7 @@ namespace HospitalManagementSystem.Controllers
                     .Include(p => p.Ward)
                     .ToListAsync();
 
+                ViewData["ActivePage"] = "Patient";
                 return View(patients);
             }
             else if (User.IsInRole("Admin") || (User.IsInRole("Staff")))
@@ -54,6 +55,7 @@ namespace HospitalManagementSystem.Controllers
                     .Include(p => p.Ward)
                     .ToListAsync();
 
+                ViewData["ActivePage"] = "Patient";
                 return View(patients);
             }
 
@@ -79,13 +81,14 @@ namespace HospitalManagementSystem.Controllers
                 ViewBag.Doctors = doctors ?? new List<Doctor>();
                 ViewBag.Wards = wards ?? new List<Ward>();
 
-                ViewData["ActivePage"] = "Treatment";
+                ViewData["ActivePage"] = "Patient";
                 return View();
             }
             catch (Exception ex)
             {
                 // Return an error view or redirect to the index with an error message
                 TempData["ErrorMessage"] = "An error occurred while loading the form. Please try again.";
+                ViewData["ActivePage"] = "Patient";
                 return RedirectToAction("Index");
             }
         }
@@ -99,6 +102,8 @@ namespace HospitalManagementSystem.Controllers
             {
                 ViewBag.Doctors = await _context.Doctors.Where(d => d.IsAvailable).ToListAsync();
                 ViewBag.Wards = await _context.Wards.Where(w => w.CurrentOccupancy < w.Capacity).ToListAsync();
+
+                ViewData["ActivePage"] = "Patient";
                 return View(patient);
             }
 
@@ -154,7 +159,9 @@ namespace HospitalManagementSystem.Controllers
             {
                 UserName = email,
                 Email = email,
-                FullName = patient.FullName
+                FullName = patient.FullName,
+                PhoneNumber = patient.PhoneNumber,
+                EmailConfirmed = true
             };
 
             var result = await _userManager.CreateAsync(user, password);
@@ -174,6 +181,7 @@ namespace HospitalManagementSystem.Controllers
 
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Patient registered successfully with login access!";
+                ViewData["ActivePage"] = "Patient";
                 return RedirectToAction(nameof(Index));
             }
             else
@@ -185,6 +193,7 @@ namespace HospitalManagementSystem.Controllers
 
                 ViewBag.Doctors = await _context.Doctors.Where(d => d.IsAvailable).ToListAsync();
                 ViewBag.Wards = await _context.Wards.Where(w => w.CurrentOccupancy < w.Capacity).ToListAsync();
+                ViewData["ActivePage"] = "Patient";
                 return View(patient);
             }
         }
@@ -207,6 +216,7 @@ namespace HospitalManagementSystem.Controllers
 
                 await _context.SaveChangesAsync();
             }
+            ViewData["ActivePage"] = "Patient";
             return RedirectToAction(nameof(Index));
         }
 
@@ -226,6 +236,7 @@ namespace HospitalManagementSystem.Controllers
                 .Where(w => w.Beds.Any(b => !b.IsOccupied))
                 .ToList();
 
+            ViewData["ActivePage"] = "Patient";
             return View(patient);
         }
 
@@ -250,6 +261,7 @@ namespace HospitalManagementSystem.Controllers
                 patient.Status = "Transferred";
                 await _context.SaveChangesAsync();
             }
+            ViewData["ActivePage"] = "Patient";
             return RedirectToAction(nameof(Index));
         }
 
@@ -263,8 +275,22 @@ namespace HospitalManagementSystem.Controllers
                 .Where(tr => tr.Patient.Email == currentUser.Email)
                 .OrderByDescending(tr => tr.TreatmentDate)
                 .ToListAsync();
+
+            // Fetch the medicines for each treatment record
+            var treatmentMedicines = await _context.TreatmentMedicines
+                .Include(tm => tm.Medicine)
+                .Where(tm => historyByPatient.Select(tr => tr.RecordId).Contains(tm.TreatmentId))
+                .ToListAsync();
+
+            // Add treatment medicines to each record in history
+            foreach (var record in historyByPatient)
+            {
+                record.TreatmentMedicines = treatmentMedicines.Where(tm => tm.TreatmentId == record.RecordId).ToList();
+            }
+
             ViewData["ActivePage"] = "MedicalHistory";
             return View(historyByPatient);
         }
+
     }
 }

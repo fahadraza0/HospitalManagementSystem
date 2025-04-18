@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<HospitalManagementSystem.Models.TreatmentRecord>
 
-<h2>Medical History for @ViewBag.PatientName</h2>
+<h2>Medical History</h2>
 
 <table class="table table-bordered table-striped" id="medicalHistoryTable">
     <thead>
@@ -20,9 +20,9 @@
                 <td>@record.TreatmentDate.ToString("yyyy-MM-dd HH:mm")</td>
                 <td>@record.Doctor.FullName</td>
                 <td>@record.Diagnosis</td>
-                @* <td>@record.Prescriptions</td> *@
+                <td>@record.Prescriptions</td>
                 <td>
-                    <!-- Add action buttons for Edit and Delete -->
+                    <a href="@Url.Action("Details", "Treatment", new { id = record.RecordId })" class="btn btn-info btn-sm">Details</a>
                     <a href="@Url.Action("Edit", "Treatment", new { id = record.RecordId })" class="btn btn-primary btn-sm">Edit</a>
                     <a href="@Url.Action("Delete", "Treatment", new { id = record.RecordId })" class="btn btn-danger btn-sm">Delete</a>
                 </td>

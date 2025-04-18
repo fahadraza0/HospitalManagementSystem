@@ -18,7 +18,7 @@ namespace HospitalManagementSystem.Models
 
         [Required]
         [StringLength(15)]
-        public string PhoneNumber { get; set; }  // ✅ New field for contact info
+        public string PhoneNumber { get; set; }  // New field for contact info
 
         [Required]
         [StringLength(100)]
@@ -33,28 +33,28 @@ namespace HospitalManagementSystem.Models
 
         public int AssignedPatientsCount { get; set; } = 0;  // Tracks workload
 
-        // ✅ Doctor's hourly rate for billing
+        // Doctor's hourly rate for billing
         [Required]
         [Column(TypeName = "decimal(18,2)")]
         public decimal HourlyRate { get; set; }  // Renamed for consistency
 
-        // ✅ New field: Experience in years
+        // New field: Experience in years
         [Range(0, 50)]
         public int Experience { get; set; } = 0;
 
-        // ✅ Timestamps
+        // Timestamps
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
 
-        // ✅ Soft delete or disable functionality
+        // Soft delete or disable functionality
         public bool IsActive { get; set; } = true;
 
-        // ✅ Navigation properties
+        // Navigation properties
         public ICollection<Patient>? Patients { get; set; }
         public ICollection<TreatmentRecord>? TreatmentRecords { get; set; }
         public ICollection<Team>? Teams { get; set; }
         public ICollection<DoctorSchedule>? Schedules { get; set; }
-        //public ICollection<Billing>? Billings { get; set; }
+        public ICollection<Billing>? Billings { get; set; }
         public ICollection<TreatmentMedicine>? TreatmentMedicines { get; set; }
     }
 }

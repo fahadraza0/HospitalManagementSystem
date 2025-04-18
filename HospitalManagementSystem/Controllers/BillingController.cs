@@ -1,101 +1,181 @@
-﻿//using HospitalManagementSystem.Data;
-//using HospitalManagementSystem.Models;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.EntityFrameworkCore;
-//using System.Linq;
-//using System.Threading.Tasks;
+﻿using HospitalManagementSystem.Data;
+using HospitalManagementSystem.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-//namespace HospitalManagementSystem.Controllers
-//{
-//    public class BillingController : Controller
-//    {
-//        private readonly ApplicationDbContext _context;
+namespace HospitalManagementSystem.Controllers
+{
+    public class BillingController : Controller
+    {
+        private readonly ApplicationDbContext _context;
 
-//        public BillingController(ApplicationDbContext context)
-//        {
-//            _context = context;
-//        }
+        public BillingController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+        [Authorize(Roles ="Admin, Staff")]
+        public async Task<IActionResult> Index()
+        {
+            var bills = await _context.Billings
+                .Include(b => b.Patient)
+                .Include(b => b.Doctor)
+                .Include(b => b.Appointment)
+                .ToListAsync();
 
-//        // ✅ Display all bills
-//        public async Task<IActionResult> Index()
-//        {
-//            var bills = await _context.Billings
-//                .Include(b => b.Patient)
-//                .Include(b => b.Doctor)
-//                .ToListAsync();
+            ViewData["ActivePage"] = "Billing";
+            return View(bills);
+        }
 
-//            return View(bills);
-//        }
+        [Authorize(Roles = "Admin, Staff")]
+        public async Task<IActionResult> Details(int id)
+        {
+            var bill = await _context.Billings
+                .Include(b => b.Patient)
+                .Include(b => b.Doctor)
+                .Include(b => b.Appointment)
+                .Include(b => b.TreatmentMedicines)
+                    .ThenInclude(tm => tm.Medicine)
+                .FirstOrDefaultAsync(b => b.BillingId == id);
 
-//        // ✅ Display bill details
-//        public async Task<IActionResult> Details(int id)
-//        {
-//            var bill = await _context.Billings
-//                .Include(b => b.Patient)
-//                .Include(b => b.Doctor)
-//                .Include(b => b.TreatmentMedicines)
-//                .ThenInclude(tm => tm.Medicine)
-//                .FirstOrDefaultAsync(b => b.BillId == id);
+            if (bill == null) return NotFound();
 
-//            if (bill == null)
-//            {
-//                return NotFound();
-//            }
+            ViewData["ActivePage"] = "Billing";
+            return View(bill);
+        }
 
-//            return View(bill);
-//        }
+        [HttpGet]
+        [Authorize(Roles = "Admin, Staff")]
+        public async Task<IActionResult> Create()
+        {
+            ViewBag.Doctors = await _context.Doctors.ToListAsync();
 
-//        // ✅ Create a new bill
-//        [HttpGet]
-//        public async Task<IActionResult> Create(int patientId, int doctorId, double hours)
-//        {
-//            var patient = await _context.Patients.FindAsync(patientId);
-//            var doctor = await _context.Doctors.FindAsync(doctorId);
+            ViewData["ActivePage"] = "Billing";
+            return View();
+        }
 
-//            if (patient == null || doctor == null)
-//            {
-//                return NotFound();
-//            }
+        [HttpPost]
+        [Authorize(Roles = "Admin, Staff")]
+        public async Task<IActionResult> Create(Billing billing)
+        {
 
-//            var bill = new Billing
-//            {
-//                PatientId = patientId,
-//                DoctorId = doctorId,
-//                TotalAmount = (decimal)(hours * doctor.HourlyRate),
-//                IsPaid = false
-//            };
+            billing.CreatedAt = DateTime.Now;
+            _context.Billings.Add(billing);
+            await _context.SaveChangesAsync();
 
-//            return View(bill);
-//        }
+            var relatedTreatments = await _context.TreatmentRecords
+        .Where(tr => tr.PatientId == billing.PatientId
+                     && tr.DoctorId == billing.DoctorId
+                     && tr.BillId == null)
+        .ToListAsync();
 
-//        [HttpPost]
-//        public async Task<IActionResult> Create(Billing bill)
-//        {
-//            if (ModelState.IsValid)
-//            {
-//                _context.Billings.Add(bill);
-//                await _context.SaveChangesAsync();
-//                return RedirectToAction(nameof(Index));
-//            }
+            foreach (var treatment in relatedTreatments)
+            {
+                treatment.BillId = billing.BillingId;
+                if (billing.IsPaid == true)
+                {
+                    treatment.IsFinalTreatment = true;
+                }
+            }
 
-//            return View(bill);
-//        }
+            await _context.SaveChangesAsync();
 
-//        // ✅ Mark bill as paid
-//        [HttpPost]
-//        public async Task<IActionResult> MarkAsPaid(int id)
-//        {
-//            var bill = await _context.Billings.FindAsync(id);
+            ViewData["ActivePage"] = "Billing";
+            return RedirectToAction(nameof(Index));
+        }
 
-//            if (bill == null)
-//            {
-//                return NotFound();
-//            }
+        [HttpPost]
+        [Authorize(Roles = "Admin, Staff")]
+        public async Task<IActionResult> MarkAsPaid(int id)
+        {
+            var bill = await _context.Billings.FindAsync(id);
+            if (bill == null) return NotFound();
 
-//            bill.IsPaid = true;
-//            await _context.SaveChangesAsync();
+            bill.IsPaid = true;
+            bill.UpdatedAt = DateTime.Now;
+            var treatmentRecord = _context.TreatmentRecords.Where(x => x.BillId == id).FirstOrDefault();
+            treatmentRecord.IsFinalTreatment = true;
+            await _context.SaveChangesAsync();
 
-//            return RedirectToAction(nameof(Index));
-//        }
-//    }
-//}
+            ViewData["ActivePage"] = "Billing";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin, Staff")]
+        public async Task<JsonResult> GetPatientsByDoctor(int doctorId)
+        {
+            var patients = await _context.Patients
+                .Where(p => p.AssignedDoctorId == doctorId)
+                .Select(p => new { p.PatientId, p.FullName })
+                .ToListAsync();
+
+            return Json(patients);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin, Staff")]
+        public async Task<JsonResult> GetAppointmentsByPatientAndDoctor(int patientId, int doctorId)
+        {
+            var appointments = await _context.Appointments
+                .Where(a => a.PatientId == patientId && a.DoctorId == doctorId)
+                .Select(a => new
+                {
+                    a.AppointmentId,
+                    TimeRange = a.AppointmentDate.ToString("yyyy-MM-dd") + " (" + a.StartTime.ToString(@"hh\:mm") + " - " + a.EndTime.ToString(@"hh\:mm") + ")"
+                })
+                .ToListAsync();
+
+            return Json(appointments);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin, Staff")]
+        public async Task<JsonResult> GetBillingDetails(int appointmentId)
+        {
+            var appointment = await _context.Appointments.FindAsync(appointmentId);
+            if (appointment == null)
+            {
+                return Json(new { error = "Appointment not found." });
+            }
+
+            var patientId = appointment.PatientId;
+            var doctorId = appointment.DoctorId;
+            var duration = appointment.EndTime - appointment.StartTime;
+            double totalHours = duration.TotalHours;
+
+            decimal doctorFee = 0;
+            decimal medicineCost = 0;
+
+            var doctor = await _context.Doctors.FindAsync(doctorId);
+            if (doctor != null)
+            {
+                doctorFee = (decimal)totalHours * doctor.HourlyRate;
+            }
+
+            var treatments = await _context.TreatmentRecords
+                .Where(t => t.PatientId == patientId && t.DoctorId == doctorId)
+                .Include(t => t.TreatmentMedicines)
+                    .ThenInclude(tm => tm.Medicine)
+                .ToListAsync();
+
+            foreach (var treatment in treatments)
+            {
+                foreach (var tm in treatment.TreatmentMedicines)
+                {
+                    medicineCost += tm.TotalCost;
+                }
+            }
+
+            return Json(new
+            {
+                doctorFee = doctorFee.ToString("0.00"),
+                medicineCost = medicineCost.ToString("0.00"),
+                totalAmount = (doctorFee + medicineCost).ToString("0.00"),
+                patientId = patientId,
+                doctorId = doctorId
+            });
+        }
+
+    }
+}

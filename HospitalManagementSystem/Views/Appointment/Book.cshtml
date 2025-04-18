@@ -3,8 +3,6 @@
 
 <form asp-action="Book" method="post" class="mt-4">
 	<input type="hidden" asp-for="PatientId" value="@ViewBag.PatientId" />
-
-	<!-- Hidden fields for start and end time -->
 	<input type="hidden" id="StartTime" name="StartTime" />
 	<input type="hidden" id="EndTime" name="EndTime" />
 
@@ -14,7 +12,7 @@
 			<option value="">-- Select Doctor --</option>
 			@foreach (var doctor in ViewBag.Doctors)
 			{
-				<option value="@doctor.DoctorId">@doctor.FullName</option>
+				<option value="@doctor.DoctorId">@doctor.FullName (@doctor.Specialization)</option>
 			}
 		</select>
 	</div>

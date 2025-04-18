@@ -18,6 +18,7 @@
     <div class="form-group">
         <label>Doctor:</label>
         <select id="DoctorId" asp-for="DoctorId" class="form-control" required>
+            <option value="">-- Select Doctor --</option>   
             @foreach (var doctor in ViewBag.Doctors)
             {
                 <option value="@doctor.DoctorId">@doctor.FullName</option>

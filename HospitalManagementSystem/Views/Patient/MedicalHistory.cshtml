@@ -8,24 +8,46 @@
             <th>Date</th>
             <th>Doctor</th>
             <th>Diagnosis</th>
-           @*  <th>Prescriptions</th> *@
+            <th>Medicines</th> <!-- New column for medicines -->
+            <th>Actions</th> <!-- Add Actions for Details -->
         </tr>
     </thead>
     <tbody>
         @foreach (var record in Model)
         {
             <tr>
-                <!-- Format TreatmentDate to a readable format -->
                 <td>@record.TreatmentDate.ToString("yyyy-MM-dd HH:mm")</td>
                 <td>@record.Doctor.FullName</td>
                 <td>@record.Diagnosis</td>
-               @*  <td>@record.Prescriptions</td> *@
+
+                <!-- Display Prescribed Medicines -->
+                <td>
+                    @if (record.TreatmentMedicines != null && record.TreatmentMedicines.Any())
+                    {
+                        <ul>
+                            @foreach (var medicine in record.TreatmentMedicines)
+                            {
+                                <li>@medicine.Medicine.Name - @medicine.Quantity</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <span>No medicines prescribed</span>
+                    }
+                </td>
+
+                <!-- Add Details Button -->
+                <td>
+                    <a href="@Url.Action("Details", "Treatment", new { id = record.RecordId })" class="btn btn-info btn-sm">Details</a>
+                </td>
             </tr>
         }
     </tbody>
 </table>
+
 <script>
-        $(document).ready(function() {
+    $(document).ready(function() {
         $('#medicalHistoryTable').DataTable({
             "paging": true,
             "lengthMenu": [10, 25, 50, 100],

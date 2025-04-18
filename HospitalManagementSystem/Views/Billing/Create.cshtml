@@ -1,32 +1,133 @@
-﻿@* @model HospitalManagementSystem.Models.Billing
+﻿@model HospitalManagementSystem.Models.Billing
+
 @{
     ViewData["Title"] = "Create Bill";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h2>Create Bill</h2>
 
-<form asp-action="Create" method="post">
-    <div class="form-group">
-        <label>Patient ID</label>
-        <input asp-for="PatientId" class="form-control" readonly />
-    </div>
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <!-- Doctor -->
+            <div class="form-group">
+                <label for="DoctorId">Select Doctor</label>
+                <select id="DoctorId" name="DoctorId" class="form-control" required>
+                    <option value="">-- Select Doctor --</option>
+                    @foreach (var doctor in ViewBag.Doctors)
+                    {
+                        <option value="@doctor.DoctorId">@doctor.FullName</option>
+                    }
+                </select>
+            </div>
 
-    <div class="form-group">
-        <label>Doctor ID</label>
-        <input asp-for="DoctorId" class="form-control" readonly />
-    </div>
+            <!-- Patient -->
+            <div class="form-group">
+                <label for="PatientId">Select Patient</label>
+                <select id="PatientId" name="PatientId" class="form-control" required>
+                    <option value="">-- Select Patient --</option>
+                </select>
+            </div>
 
-    <div class="form-group">
-        <label>Total Amount</label>
-        <input asp-for="TotalAmount" class="form-control" readonly />
-    </div>
+            <!-- Appointment -->
+            <div class="form-group">
+                <label for="AppointmentId">Select Appointment</label>
+                <select id="AppointmentId" name="AppointmentId" class="form-control" required>
+                    <option value="">-- Select Appointment --</option>
+                </select>
+            </div>
 
-    <div class="form-group form-check">
-        <input asp-for="IsPaid" class="form-check-input" />
-        <label class="form-check-label">Is Paid?</label>
-    </div>
+            <!-- Doctor Fee -->
+            <div class="form-group">
+                <label>Doctor Fee</label>
+                <input id="DoctorFee" name="DoctorFee" class="form-control" readonly />
+            </div>
 
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-</form>
- *@
+            <!-- Medicine Cost -->
+            <div class="form-group">
+                <label>Medicine Cost</label>
+                <input id="MedicineCost" name="MedicineCost" class="form-control" readonly />
+            </div>
+
+            <!-- Total Amount -->
+            <div class="form-group">
+                <label>Total Amount</label>
+                <input id="TotalAmount" name="TotalAmount" class="form-control" readonly />
+            </div>
+
+            <!-- Is Paid -->
+            <div class="form-check mb-3">
+                <input type="hidden" name="IsPaid" value="false" />
+                <input class="form-check-input" type="checkbox" id="IsPaid" name="IsPaid" value="true" />
+                <label class="form-check-label" for="IsPaid">Mark as Paid</label>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary">Generate Bill</button>
+            <a asp-action="Index" class="btn btn-secondary">Back</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // Load Patients when Doctor changes
+            $('#DoctorId').change(function () {
+                const doctorId = $(this).val();
+                $('#PatientId').html('<option>Loading...</option>');
+                $('#AppointmentId').empty().append('<option value="">-- Select Appointment --</option>');
+                $('#DoctorFee, #MedicineCost, #TotalAmount').val('');
+
+                if (doctorId) {
+                    $.get(`/Billing/GetPatientsByDoctor?doctorId=${doctorId}`, function (data) {
+                        let options = '<option value="">-- Select Patient --</option>';
+                        $.each(data, function (index, patient) {
+                            options += `<option value="${patient.patientId}">${patient.fullName}</option>`;
+                        });
+                        $('#PatientId').html(options);
+                    });
+                }
+            });
+
+            // Load Appointments when Patient changes
+            $('#PatientId').change(function () {
+                const doctorId = $('#DoctorId').val();
+                const patientId = $(this).val();
+                $('#AppointmentId').html('<option>Loading...</option>');
+                $('#DoctorFee, #MedicineCost, #TotalAmount').val('');
+
+                if (doctorId && patientId) {
+                    $.get(`/Billing/GetAppointmentsByPatientAndDoctor?doctorId=${doctorId}&patientId=${patientId}`, function (data) {
+                        let options = '<option value="">-- Select Appointment --</option>';
+                        $.each(data, function (index, appt) {
+                            options += `<option value="${appt.appointmentId}">${appt.timeRange}</option>`;
+                        });
+                        $('#AppointmentId').html(options);
+                    });
+                }
+            });
+
+            // Get Billing details based on Appointment
+            $('#AppointmentId').change(function () {
+                const appointmentId = $(this).val();
+                if (appointmentId) {
+                    $.get(`/Billing/GetBillingDetails?appointmentId=${appointmentId}`, function (data) {
+                        $('#DoctorFee').val(data.doctorFee);
+                        $('#MedicineCost').val(data.medicineCost);
+                        $('#TotalAmount').val(data.totalAmount);
+
+                        // Update hidden fields just in case (optional)
+                        $('#DoctorId').val(data.doctorId);
+                        $('#PatientId').val(data.patientId);
+                    });
+                }
+            });
+
+        });
+    </script>
+}

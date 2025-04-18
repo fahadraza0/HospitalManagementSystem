@@ -54,181 +54,221 @@
 			</button>
 		</div>
 		<div class="sidebar collapse" id="sidebar">
-	<ul class="nav flex-column">
+			<ul class="nav flex-column">
 
-		<!-- 🔥 Always Visible to All -->
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "Dashboard" ? "active" : "")">
-			<a class="nav-link" asp-controller="Home" asp-action="Index">
-				<i class="fas fa-home"></i> Home
-			</a>
-		</li>
+				<!-- 🔥 Always Visible to All -->
+				<li class="nav-item @((ViewData["ActivePage"] as string) == "Dashboard" ? "active" : "")">
+					<a class="nav-link" asp-controller="Home" asp-action="Index">
+						<i class="fas fa-home"></i> Home
+					</a>
+				</li>
 
-		<!-- ✅ Admin Access -->
+				<!-- ✅ Admin Access -->
 				@if (User.IsInRole("Admin"))
 				{
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "Dashboard" ? "active" : "")">
-			<a class="nav-link" asp-controller="Home" asp-action="Index">
-				<i class="fas fa-home"></i> Dashboard
-			</a>
-		</li>
-
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "Team" ? "active" : "")">
-			<a class="nav-link" asp-controller="Team" asp-action="Index">
-				<i class="fas fa-users-cog"></i> Team
-			</a>
-		</li>
-
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "Staff" ? "active" : "")">
-			<a class="nav-link" asp-controller="Staff" asp-action="Index">
-				<i class="fas fa-user-tie"></i> Staff
-			</a>
-		</li>
-
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "Ward" ? "active" : "")">
-			<a class="nav-link" asp-controller="Ward" asp-action="Index">
-				<i class="fas fa-procedures"></i> Wards
-			</a>
-		</li>
-
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "Doctor" ? "active" : "")">
-			<a class="nav-link" asp-controller="Doctor" asp-action="Index">
-				<i class="fas fa-stethoscope"></i> Doctors
-			</a>
-		</li>
-
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "Patient" ? "active" : "")">
-			<a class="nav-link" asp-controller="Patient" asp-action="Index">
-				<i class="fas fa-user-injured"></i> Patients
-			</a>
-		</li>
-
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "Treatment" ? "active" : "")">
-			<a class="nav-link" asp-controller="Treatment" asp-action="Create">
-				<i class="fas fa-user-nurse"></i> Treatment
-			</a>
-		</li>
-
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "Appointment" ? "active" : "")">
-			<a class="nav-link" asp-controller="Appointment" asp-action="Index">
-				<i class="fas fa-calendar-check"></i> Appointments
-			</a>
-		</li>
-
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "Reports" ? "active" : "")">
-			<a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#reportsMenu" aria-expanded="false" aria-controls="reportsMenu">
-				<i class="fas fa-file-alt"></i> Reports
-			</a>
-			<div class="collapse" id="reportsMenu">
-				<ul class="nav flex-column ms-3">
-					<li class="nav-item @((ViewData["ActivePage"] as string) == "PatientsByWard" ? "active" : "")">
-						<a class="nav-link" asp-controller="Report" asp-action="PatientsByWard">
-							<i class="fas fa-bed"></i> Patients by Ward
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Team" ? "active" : "")">
+						<a class="nav-link" asp-controller="Team" asp-action="Index">
+							<i class="fas fa-users-cog"></i> Team
 						</a>
 					</li>
 
-					<li class="nav-item @((ViewData["ActivePage"] as string) == "PatientsByDoctor" ? "active" : "")">
-						<a class="nav-link" asp-controller="Report" asp-action="PatientsByDoctor">
-							<i class="fas fa-user-md"></i> Patients by Doctor
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Staff" ? "active" : "")">
+						<a class="nav-link" asp-controller="Staff" asp-action="Index">
+							<i class="fas fa-user-tie"></i> Staff
 						</a>
 					</li>
 
-					<li class="nav-item @((ViewData["ActivePage"] as string) == "TreatmentHistory" ? "active" : "")">
-						<a class="nav-link" asp-controller="Report" asp-action="TreatmentHistory">
-							<i class="fas fa-history"></i> Treatment History
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Ward" ? "active" : "")">
+						<a class="nav-link" asp-controller="Ward" asp-action="Index">
+							<i class="fas fa-procedures"></i> Wards
 						</a>
 					</li>
 
-					<!-- Additional report links -->
-				</ul>
-			</div>
-		</li>
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Doctor" ? "active" : "")">
+						<a class="nav-link" asp-controller="Doctor" asp-action="Index">
+							<i class="fas fa-stethoscope"></i> Doctors
+						</a>
+					</li>
+
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Medicines" ? "active" : "")">
+						<a class="nav-link" asp-controller="Medicines" asp-action="Index">
+							<i class="fas fa-vials"></i> Medicines
+						</a>
+					</li>
+
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Patient" ? "active" : "")">
+						<a class="nav-link" asp-controller="Patient" asp-action="Index">
+							<i class="fas fa-user-injured"></i> Patients
+						</a>
+					</li>
+
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Treatment" ? "active" : "")">
+						<a class="nav-link" asp-controller="Treatment" asp-action="Create">
+							<i class="fas fa-user-nurse"></i> Treatment
+						</a>
+					</li>
+
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Appointment" ? "active" : "")">
+						<a class="nav-link" asp-controller="Appointment" asp-action="Index">
+							<i class="fas fa-calendar-check"></i> Appointments
+						</a>
+					</li>
+
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Billing" ? "active" : "")">
+						<a class="nav-link" asp-controller="Billing" asp-action="Index">
+							<i class="fas fa-receipt"></i> Bills
+						</a>
+					</li>
+
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Reports" ? "active" : "")">
+						<a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#reportsMenu" aria-expanded="false" aria-controls="reportsMenu">
+							<i class="fas fa-file-alt"></i> Reports
+						</a>
+						<div class="collapse" id="reportsMenu">
+							<ul class="nav flex-column ms-3">
+								<li class="nav-item @((ViewData["ActivePage"] as string) == "PatientsByWard" ? "active" : "")">
+									<a class="nav-link" asp-controller="Report" asp-action="PatientsByWard">
+										<i class="fas fa-procedures"></i> Patients by Ward
+									</a>
+								</li>
+
+								<li class="nav-item @((ViewData["ActivePage"] as string) == "PatientsByDoctor" ? "active" : "")">
+									<a class="nav-link" asp-controller="Report" asp-action="PatientsByDoctor">
+										<i class="fas fa-user-md"></i> Patients by Doctor
+									</a>
+								</li>
+
+								<li class="nav-item @((ViewData["ActivePage"] as string) == "TeamReports" ? "active" : "")">
+									<a class="nav-link" asp-controller="Report" asp-action="TeamReports">
+										<i class="fas fa-users-cog"></i> Teams
+									</a>
+								</li>
+
+								<li class="nav-item @((ViewData["ActivePage"] as string) == "WardOccupancy" ? "active" : "")">
+									<a class="nav-link" asp-controller="Report" asp-action="WardOccupancy">
+										<i class="fas fa-hospital-user"></i> Ward Occupancy
+									</a>
+								</li>
+
+								<li class="nav-item @((ViewData["ActivePage"] as string) == "DischargeReports" ? "active" : "")">
+									<a class="nav-link" asp-controller="Report" asp-action="DischargeReports">
+										<i class="fas fa-file-medical-alt"></i> Discharge Reports
+									</a>
+								</li>
+
+								<li class="nav-item @((ViewData["ActivePage"] as string) == "AppointmentReports" ? "active" : "")">
+									<a class="nav-link" asp-controller="Report" asp-action="AppointmentReports">
+										<i class="fas fa-calendar-alt"></i> Appointment Reports
+									</a>
+								</li>
+
+								<li class="nav-item @((ViewData["ActivePage"] as string) == "PatientStatistics" ? "active" : "")">
+									<a class="nav-link" asp-controller="Report" asp-action="PatientStatistics">
+										<i class="fas fa-chart-bar"></i> Patient Statistics
+									</a>
+								</li>
+
+								<li class="nav-item @((ViewData["ActivePage"] as string) == "StaffActivityReports" ? "active" : "")">
+									<a class="nav-link" asp-controller="Report" asp-action="StaffActivityReports">
+										<i class="fas fa-user-clock"></i> Staff Activity
+									</a>
+								</li>
+
+								<li class="nav-item @((ViewData["ActivePage"] as string) == "EmergencyConsultations" ? "active" : "")">
+									<a class="nav-link" asp-controller="Report" asp-action="EmergencyConsultations">
+										<i class="fas fa-ambulance"></i> Emergency Consultations
+									</a>
+								</li>
+							</ul>
+						</div>
+					</li>
 				}
 
-<!-- ✅ Doctor Access -->
+				<!-- ✅ Doctor Access -->
 				@if (User.IsInRole("Doctor"))
 				{
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "MyProfile" ? "active" : "")">
-			<a class="nav-link" asp-controller="Doctor" asp-action="Index">
-				<i class="fas fa-user-md"></i> My Profile
-			</a>
-		</li>
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "MyProfile" ? "active" : "")">
+						<a class="nav-link" asp-controller="Doctor" asp-action="Index">
+							<i class="fas fa-user-md"></i> My Profile
+						</a>
+					</li>
+						
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Appointment" ? "active" : "")">
+						<a class="nav-link" asp-controller="Appointment" asp-action="Index">
+							<i class="fas fa-calendar-check"></i> My Appointments
+						</a>
+					</li>
 
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "MyAppointments" ? "active" : "")">
-			<a class="nav-link" asp-controller="Appointment" asp-action="Index">
-				<i class="fas fa-calendar-check"></i> My Appointments
-			</a>
-		</li>
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "MyPatients" ? "active" : "")">
+						<a class="nav-link" asp-controller="Patient" asp-action="Index">
+							<i class="fas fa-user-injured"></i> My Patients
+						</a>
+					</li>
 
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "MyPatients" ? "active" : "")">
-			<a class="nav-link" asp-controller="Patient" asp-action="Index">
-				<i class="fas fa-user-injured"></i> My Patients
-			</a>
-		</li>
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Treatment" ? "active" : "")">
+						<a class="nav-link" asp-controller="Treatment" asp-action="AddTreatment">
+							<i class="fas fa-user-nurse"></i> Patient Treatment
+						</a>
+					</li>
 
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "Treatment" ? "active" : "")">
-			<a class="nav-link" asp-controller="Treatment" asp-action="AddTreatment">
-				<i class="fas fa-user-nurse"></i> Patient Treatment
-			</a>
-		</li>
-
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "MyReports" ? "active" : "")">
-			<a class="nav-link" asp-controller="Report" asp-action="PatientsByDoctor">
-				<i class="fas fa-file-medical"></i> My Reports
-			</a>
-		</li>
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Reports" ? "active" : "")">
+						<a class="nav-link" asp-controller="Report" asp-action="PatientsByDoctor">
+							<i class="fas fa-file-medical"></i> My Reports
+						</a>
+					</li>
 				}
 
-<!-- ✅ Staff Access -->
+				<!-- ✅ Staff Access -->
 				@if (User.IsInRole("Staff"))
 				{
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "WardManagement" ? "active" : "")">
-			<a class="nav-link" asp-controller="Ward" asp-action="Index">
-				<i class="fas fa-procedures"></i> Ward Management
-			</a>
-		</li>
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "WardManagement" ? "active" : "")">
+						<a class="nav-link" asp-controller="Ward" asp-action="Index">
+							<i class="fas fa-procedures"></i> Ward Management
+						</a>
+					</li>
 
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "PatientAssistance" ? "active" : "")">
-			<a class="nav-link" asp-controller="Patient" asp-action="Index">
-				<i class="fas fa-user-injured"></i> Patient Assistance
-			</a>
-		</li>
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "PatientAssistance" ? "active" : "")">
+						<a class="nav-link" asp-controller="Patient" asp-action="Index">
+							<i class="fas fa-user-injured"></i> Patient Assistance
+						</a>
+					</li>
 
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "AppointmentsAssistance" ? "active" : "")">
-			<a class="nav-link" asp-controller="Appointment" asp-action="Index">
-				<i class="fas fa-calendar-check"></i> Appointments Assistance
-			</a>
-		</li>
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Appointment" ? "active" : "")">
+						<a class="nav-link" asp-controller="Appointment" asp-action="Index">
+							<i class="fas fa-calendar-check"></i> Appointments Assistance
+						</a>
+					</li>
 
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "StaffReports" ? "active" : "")">
-			<a class="nav-link" asp-controller="Report" asp-action="StaffActivityReports">
-				<i class="fas fa-chart-line"></i> Staff Reports
-			</a>
-		</li>
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Reports" ? "active" : "")">
+						<a class="nav-link" asp-controller="Report" asp-action="StaffActivityReports">
+							<i class="fas fa-chart-line"></i> Staff Reports
+						</a>
+					</li>
 				}
 
-<!-- ✅ Patient Access -->
+				<!-- ✅ Patient Access -->
 				@if (User.IsInRole("Patient"))
 				{
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "BookAppointment" ? "active" : "")">
-			<a class="nav-link" asp-controller="Appointment" asp-action="Book">
-				<i class="fas fa-calendar-plus"></i> Book Appointment
-			</a>
-		</li>
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Appointment" ? "active" : "")">
+						<a class="nav-link" asp-controller="Appointment" asp-action="Book">
+							<i class="fas fa-calendar-plus"></i> Book Appointment
+						</a>
+					</li>
 
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "MyAppointments" ? "active" : "")">
-			<a class="nav-link" asp-controller="Appointment" asp-action="MyAppointments">
-				<i class="fas fa-calendar-check"></i> My Appointments
-			</a>
-		</li>
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "MyAppointments" ? "active" : "")">
+						<a class="nav-link" asp-controller="Appointment" asp-action="MyAppointments">
+							<i class="fas fa-calendar-check"></i> My Appointments
+						</a>
+					</li>
 
-		<li class="nav-item @((ViewData["ActivePage"] as string) == "MedicalHistory" ? "active" : "")">
-			<a class="nav-link" asp-controller="Patient" asp-action="MedicalHistory">
-				<i class="fas fa-file-medical-alt"></i> Medical History
-			</a>
-		</li>
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "MedicalHistory" ? "active" : "")">
+						<a class="nav-link" asp-controller="Patient" asp-action="MedicalHistory">
+							<i class="fas fa-file-medical-alt"></i> Medical History
+						</a>
+					</li>
 				}
-</ul>
-</div>
+			</ul>
+		</div>
 
 		<main class="main-content">
 			@RenderBody()

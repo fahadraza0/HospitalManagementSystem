@@ -19,10 +19,10 @@ namespace HospitalManagementSystem.Data
         public DbSet<Team> Teams { get; set; }
         public DbSet<DoctorSchedule> DoctorSchedules { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
-        //public DbSet<Billing> Billings { get; set; }
-        //public DbSet<Payment> Payments { get; set; }
-        //public DbSet<Medicine> Medicines { get; set; }
-        //public DbSet<TreatmentMedicine> TreatmentMedicines { get; set; }
+        public DbSet<Billing> Billings { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<Medicine> Medicines { get; set; }
+        public DbSet<TreatmentMedicine> TreatmentMedicines { get; set; }
 
 
         // Configure the model relationships in OnModelCreating
@@ -37,16 +37,32 @@ namespace HospitalManagementSystem.Data
                 .HasForeignKey(d => d.TeamId) // Foreign key on Doctor's TeamId
                 .OnDelete(DeleteBehavior.SetNull); // Optional: Set TeamId to null when the team is deleted
 
+            // Configuring the composite key for TreatmentMedicine
             modelBuilder.Entity<TreatmentMedicine>()
-            .HasKey(tm => new { tm.TreatmentId, tm.MedicineId });
+                .HasKey(tm => new { tm.TreatmentId, tm.MedicineId }); // Composite primary key
 
+            // Configuring the relationship between TreatmentMedicine and Treatment
+            modelBuilder.Entity<TreatmentMedicine>()
+                .HasOne(tm => tm.Treatment)
+                .WithMany(t => t.TreatmentMedicines) // A Treatment has many TreatmentMedicines
+                .HasForeignKey(tm => tm.TreatmentId)
+                .OnDelete(DeleteBehavior.Cascade); // Optional: Cascade delete for Treatment
+
+            // Configuring the relationship between TreatmentMedicine and Medicine
             modelBuilder.Entity<TreatmentMedicine>()
                 .HasOne(tm => tm.Medicine)
+                .WithMany() // Assuming Medicine does not have a navigation property for TreatmentMedicines
+                .HasForeignKey(tm => tm.MedicineId)
+                .OnDelete(DeleteBehavior.Restrict); // Optional: Restrict delete for Medicine
+
+            modelBuilder.Entity<Billing>()
+                .HasOne(b => b.Doctor)
                 .WithMany()
-                .HasForeignKey(tm => tm.MedicineId);
+                .HasForeignKey(b => b.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // You can add other relationship configurations here if needed
-
         }
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using HospitalManagementSystem.Data;
+using HospitalManagementSystem.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,9 @@ namespace HospitalManagementSystem.Controllers
             var wards = await _context.Wards
                 .Include(w => w.Patients)
                 .ToListAsync();
+
+            ViewData["ActivePage"] = "MyReports";
+            ViewData["ActivePage"] = "PatientsByWard";
             return View(wards);
         }
 
@@ -31,6 +35,7 @@ namespace HospitalManagementSystem.Controllers
                 .ToListAsync();
 
             ViewData["ActivePage"] = "MyReports";
+            ViewData["ActivePage"] = "PatientsByDoctor";
             return View(doctors);
         }
 
@@ -42,6 +47,9 @@ namespace HospitalManagementSystem.Controllers
                 .Include(tr => tr.Doctor)
                 .OrderByDescending(tr => tr.TreatmentDate)
                 .ToListAsync();
+
+            ViewData["ActivePage"] = "MyReports";
+            ViewData["ActivePage"] = "TreatmentHistory";
             return View(records);
         }
 
@@ -51,6 +59,9 @@ namespace HospitalManagementSystem.Controllers
             var teams = await _context.Teams
                 .Include(t => t.Doctors)
                 .ToListAsync();
+
+            ViewData["ActivePage"] = "MyReports";
+            ViewData["ActivePage"] = "TeamReports";
             return View(teams);
         }
 
@@ -59,7 +70,7 @@ namespace HospitalManagementSystem.Controllers
         {
             var wards = await _context.Wards
                 .Include(w => w.Patients)
-                .Select(w => new
+                .Select(w => new WardOccupancyViewModel
                 {
                     WardName = w.WardName,
                     TotalBeds = w.Capacity,
@@ -68,18 +79,8 @@ namespace HospitalManagementSystem.Controllers
                 })
                 .ToListAsync();
 
+            ViewData["ActivePage"] = "WardOccupancy";
             return View(wards);
-        }
-
-        // ✅ Doctor Availability and Schedule Report
-        public async Task<IActionResult> DoctorSchedules()
-        {
-            var schedules = await _context.DoctorSchedules
-                .Include(s => s.Doctor)
-                .OrderBy(s => s.StartTime)
-                .ToListAsync();
-
-            return View(schedules);
         }
 
         // ✅ Patient Admission and Discharge Trends Report
@@ -113,6 +114,8 @@ namespace HospitalManagementSystem.Controllers
                 .OrderByDescending(p => p.DischargeDate)
                 .ToListAsync();
 
+            ViewData["ActivePage"] = "MyReports";
+            ViewData["ActivePage"] = "DischargeReports";
             return View(discharges);
         }
 
@@ -125,6 +128,8 @@ namespace HospitalManagementSystem.Controllers
                 .OrderByDescending(a => a.AppointmentDate)
                 .ToListAsync();
 
+            ViewData["ActivePage"] = "MyReports";
+            ViewData["ActivePage"] = "AppointmentReports";
             return View(appointments);
         }
 
@@ -152,6 +157,8 @@ namespace HospitalManagementSystem.Controllers
                 })
                 .ToListAsync();
 
+            ViewData["ActivePage"] = "MyReports";
+            ViewData["ActivePage"] = "PatientStatistics";
             return View(stats);
         }
 
@@ -162,7 +169,8 @@ namespace HospitalManagementSystem.Controllers
                 .Include(s => s.Department)
                 .ToListAsync();
 
-            ViewData["ActivePage"] = "StaffReports";
+            ViewData["ActivePage"] = "MyReports";
+            ViewData["ActivePage"] = "StaffActivityReports";
             return View(staffActivities);
         }
 
@@ -175,6 +183,8 @@ namespace HospitalManagementSystem.Controllers
                 .Include(a => a.Doctor)
                 .ToListAsync();
 
+            ViewData["ActivePage"] = "MyReports";
+            ViewData["ActivePage"] = "EmergencyConsultations";
             return View(emergencyRequests);
         }
     }

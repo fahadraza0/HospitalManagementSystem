@@ -1,13 +1,13 @@
-﻿@* @model HospitalManagementSystem.Models.Billing
+﻿@model HospitalManagementSystem.Models.Billing
 @{
     ViewData["Title"] = "Billing Details";
 }
 
-<h2>Billing Details</h2>
+<h2 class="mb-4">Billing Details</h2>
 
 <div class="card">
     <div class="card-header bg-primary text-white">
-        Patient: @Model.Patient.FullName
+        Billing for Patient: @Model.Patient.FullName
     </div>
     <div class="card-body">
         <p><strong>Doctor:</strong> @Model.Doctor.FullName</p>
@@ -19,30 +19,36 @@
             </span>
         </p>
 
-        <h4>Medicines</h4>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Medicine</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var medicine in Model.TreatmentMedicines)
-                {
+        <h5 class="mt-4">Medicines</h5>
+        @if (Model.TreatmentMedicines != null && Model.TreatmentMedicines.Any())
+        {
+            <table class="table table-bordered">
+                <thead>
                     <tr>
-                        <td>@medicine.Medicine.Name</td>
-                        <td>@medicine.Quantity</td>
-                        <td>@medicine.Medicine.Price.ToString("C")</td>
-                        <td>@(medicine.Quantity * medicine.Medicine.Price).ToString("C")</td>
+                        <th>Medicine</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
                     </tr>
-                }
-			</tbody>
-		</table>
+                </thead>
+                <tbody>
+                    @foreach (var med in Model.TreatmentMedicines)
+                    {
+                        <tr>
+                            <td>@med.Medicine.Name</td>
+                            <td>@med.Quantity</td>
+                            <td>@med.Medicine.Price.ToString("C")</td>
+                            <td>@(med.Quantity * med.Medicine.Price).ToString("C")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>No medicines billed.</p>
+        }
 
-<a asp-action="Index" class="btn btn-secondary">Back to List</a>
-	</div>
+        <a asp-action="Index" class="btn btn-secondary mt-3">Back to List</a>
+    </div>
 </div>
- *@

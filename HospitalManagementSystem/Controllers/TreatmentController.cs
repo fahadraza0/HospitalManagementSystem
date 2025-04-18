@@ -1,5 +1,6 @@
 ﻿using HospitalManagementSystem.Data;
 using HospitalManagementSystem.Models;
+using HospitalManagementSystem.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,8 @@ namespace HospitalManagementSystem.Controllers
                 .Include(tr => tr.Doctor)
                 .OrderByDescending(tr => tr.TreatmentDate)
                 .ToListAsync();
+
+                ViewBag.PatientName = "admin@hospital.com";
                 return View(history);
             }
             var historyByPatient = await _context.TreatmentRecords
@@ -39,6 +42,26 @@ namespace HospitalManagementSystem.Controllers
 
             return View(historyByPatient);
         }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            var treatment = await _context.TreatmentRecords
+                .Include(tr => tr.Doctor)
+                .Include(tr => tr.Patient)
+                .FirstOrDefaultAsync(tr => tr.RecordId == id);
+
+            if (treatment == null)
+                return NotFound();
+
+            var medicines = await _context.TreatmentMedicines
+                .Include(tm => tm.Medicine)
+                .Where(tm => tm.TreatmentId == id)
+                .ToListAsync();
+
+            ViewBag.Medicines = medicines;
+            return View(treatment);
+        }
+
         // GET: Treatment/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
@@ -114,25 +137,74 @@ namespace HospitalManagementSystem.Controllers
         }
 
         [Authorize(Roles = "Admin, Doctor")]
-        public IActionResult Create(int patientId)
+        public IActionResult Create(int? patientId = null)
         {
-            // Pass PatientId and list of doctors to the view
-            ViewBag.PatientId = patientId;
-            ViewBag.Doctors = _context.Doctors.ToList();
             ViewData["ActivePage"] = "PatientAssistance";
 
-            return View();
+            var viewModel = new TreatmentRecordViewModel
+            {
+                TreatmentRecord = new TreatmentRecord(),
+                Medicines = _context.Medicines.ToList(),
+                MedicinesWithQuantities = new List<MedicineSelection>(), // Make sure the list is initialized
+            };
+
+            if (User.IsInRole("Admin"))
+            {
+                var doctors = _context.Doctors.ToList();
+                ViewBag.Doctors = doctors;
+            }
+            else if (User.IsInRole("Doctor"))
+            {
+                var doctorEmail = User.Identity?.Name;
+                var doctor = _context.Doctors.FirstOrDefault(d => d.Email == doctorEmail);
+                if (doctor != null)
+                {
+                    ViewBag.DoctorId = doctor.DoctorId;
+
+                    viewModel.TreatmentRecord.DoctorId = doctor.DoctorId;
+
+                    ViewBag.Patients = _context.Patients
+                        .Where(p => p.AssignedDoctorId == doctor.DoctorId)
+                        .ToList();
+                }
+            }
+
+            ViewBag.PatientId = patientId;
+            return View(viewModel);
         }
 
-        // POST: Treatment/Create
         [HttpPost]
         [Authorize(Roles = "Admin, Doctor")]
-        public async Task<IActionResult> Create(TreatmentRecord treatmentRecord)
-        {
-                _context.Add(treatmentRecord);
+        public async Task<IActionResult> Create(TreatmentRecordViewModel model)
+        {           
+
+            // Save TreatmentRecord
+            
+            _context.TreatmentRecords.Add(model.TreatmentRecord);
+            await _context.SaveChangesAsync();
+
+            // Save selected medicines (many-to-many with quantities)
+            if (model.MedicinesWithQuantities != null)
+            {
+                foreach (var med in model.MedicinesWithQuantities)
+                {
+                    if (med.MedicineId > 0 && med.Quantity > 0)
+                    {
+                        _context.TreatmentMedicines.Add(new TreatmentMedicine
+                        {
+                            TreatmentId = model.TreatmentRecord.RecordId,
+                            MedicineId = med.MedicineId,
+                            Quantity = med.Quantity
+                        });
+                    }
+                }
+
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(History), new { patientId = treatmentRecord.PatientId });
+            }
+
+            return RedirectToAction(nameof(History), new { patientId = model.TreatmentRecord.PatientId });
         }
+
         [HttpGet]
         public JsonResult GetPatientsByDoctor(int doctorId)
         {

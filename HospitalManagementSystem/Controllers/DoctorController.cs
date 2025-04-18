@@ -26,6 +26,8 @@ namespace HospitalManagementSystem.Controllers
         public async Task<IActionResult> Index()
         {
             var doctors = await _context.Doctors.Include(d => d.Team).ToListAsync();
+
+            ViewData["ActivePage"] = "Doctor";
             return View(doctors);
         }
 
@@ -35,6 +37,7 @@ namespace HospitalManagementSystem.Controllers
             var teams = _context.Teams.ToList();
             ViewBag.Teams = teams;
 
+            ViewData["ActivePage"] = "Doctor";
             return View();
         }
 
@@ -70,6 +73,8 @@ namespace HospitalManagementSystem.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewData["ActivePage"] = "Doctor";
             return View(doctorDTO);
         }
 
@@ -90,6 +95,7 @@ namespace HospitalManagementSystem.Controllers
             // Pass the list of unassigned patients to the View
             ViewBag.Patients = unassignedPatients;
 
+            ViewData["ActivePage"] = "Doctor";
             return View(doctor);
         }
 
@@ -105,6 +111,8 @@ namespace HospitalManagementSystem.Controllers
                 patient.AssignedDoctorId = doctor.DoctorId;
                 await _context.SaveChangesAsync();
             }
+
+            ViewData["ActivePage"] = "Doctor";
             return RedirectToAction(nameof(Index));
         }
 
@@ -112,6 +120,8 @@ namespace HospitalManagementSystem.Controllers
         public IActionResult Schedule(int id)
         {
             var doctor = _context.Doctors.Include(d => d.Schedules).FirstOrDefault(d => d.DoctorId == id);
+
+            ViewData["ActivePage"] = "Doctor";
             return View(doctor);
         }
 
@@ -132,6 +142,8 @@ namespace HospitalManagementSystem.Controllers
 
                 await _context.SaveChangesAsync();
             }
+
+            ViewData["ActivePage"] = "Doctor";
             return RedirectToAction(nameof(Index));
         }
 
@@ -162,67 +174,71 @@ namespace HospitalManagementSystem.Controllers
             return Json(availableSlots);
         }
 
-        //[Authorize(Roles = "Admin,Doctor")]
-        //public IActionResult GenerateBill(int patientId, int doctorId, int appointmentId)
-        //{
-        //    var patient = _context.Patients.FirstOrDefault(p => p.PatientId == patientId);
-        //    var doctor = _context.Doctors.FirstOrDefault(d => d.DoctorId == doctorId);
-        //    var appointment = _context.Appointments.FirstOrDefault(a => a.AppointmentId == appointmentId);
+        [Authorize(Roles = "Admin,Doctor")]
+        public IActionResult GenerateBill(int patientId, int doctorId, int appointmentId)
+        {
+            var patient = _context.Patients.FirstOrDefault(p => p.PatientId == patientId);
+            var doctor = _context.Doctors.FirstOrDefault(d => d.DoctorId == doctorId);
+            var appointment = _context.Appointments.FirstOrDefault(a => a.AppointmentId == appointmentId);
 
-        //    if (patient == null || doctor == null || appointment == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (patient == null || doctor == null || appointment == null)
+            {
+                return NotFound();
+            }
 
-        //    var bill = new Billing
-        //    {
-        //        PatientId = patient.PatientId,
-        //        DoctorId = doctor.DoctorId,
-        //        AppointmentId = appointment.AppointmentId,
-        //        CreatedAt = DateTime.Now,
-        //        DoctorFee = doctor.HourlyRate * (decimal)(appointment.EndTime - appointment.StartTime).TotalHours, // Assuming DoctorFee is hourly
-        //        MedicineCost = 0, // Set to a default value or calculate based on prescribed medicines
-        //        IsPaid = false
-        //    };
+            var bill = new Billing
+            {
+                PatientId = patient.PatientId,
+                DoctorId = doctor.DoctorId,
+                AppointmentId = appointment.AppointmentId,
+                CreatedAt = DateTime.Now,
+                DoctorFee = doctor.HourlyRate * (decimal)(appointment.EndTime - appointment.StartTime).TotalHours, // Assuming DoctorFee is hourly
+                MedicineCost = 0, // Set to a default value or calculate based on prescribed medicines
+                IsPaid = false
+            };
 
-        //    _context.Billings.Add(bill);
-        //    _context.SaveChanges();
+            _context.Billings.Add(bill);
+            _context.SaveChanges();
 
-        //    return RedirectToAction("BillDetails", new { id = bill.BillId });
-        //}
+            ViewData["ActivePage"] = "Doctor";
+            return RedirectToAction("BillDetails", new { id = bill.BillingId });
+        }
 
-        // View for displaying the Bill Details
-        //[Authorize(Roles = "Admin,Doctor")]
-        //public IActionResult BillDetails(int id)
-        //{
-        //    var bill = _context.Billings
-        //                       .Include(b => b.Patient)
-        //                       .Include(b => b.Doctor)
-        //                       .Include(b => b.Appointment)
-        //                       .FirstOrDefault(b => b.BillId == id);
+        //View for displaying the Bill Details
+        [Authorize(Roles = "Admin,Doctor")]
+        public IActionResult BillDetails(int id)
+        {
+            var bill = _context.Billings
+                               .Include(b => b.Patient)
+                               .Include(b => b.Doctor)
+                               .Include(b => b.Appointment)
+                               .FirstOrDefault(b => b.BillingId == id);
 
-        //    if (bill == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (bill == null)
+            {
+                return NotFound();
+            }
 
-        //    return View(bill);
-        //}
+            ViewData["ActivePage"] = "Doctor";
+            return View(bill);
+        }
 
-        //// Update Payment Status of a Bill
-        //[HttpPost]
-        //[Authorize(Roles = "Admin")]
-        //public async Task<IActionResult> UpdatePaymentStatus(int billId, bool isPaid)
-        //{
-        //    var bill = await _context.Billings.FindAsync(billId);
-        //    if (bill != null)
-        //    {
-        //        bill.IsPaid = isPaid;
-        //        bill.UpdatedAt = DateTime.Now;
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    return RedirectToAction("BillDetails", new { id = billId });
-        //}
+        // Update Payment Status of a Bill
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdatePaymentStatus(int billId, bool isPaid)
+        {
+            var bill = await _context.Billings.FindAsync(billId);
+            if (bill != null)
+            {
+                bill.IsPaid = isPaid;
+                bill.UpdatedAt = DateTime.Now;
+                await _context.SaveChangesAsync();
+            }
+
+            ViewData["ActivePage"] = "Doctor";
+            return RedirectToAction("BillDetails", new { id = billId });
+        }
 
         #region Private Methods
         [Authorize(Roles = "Admin")]

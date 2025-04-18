@@ -1,0 +1,65 @@
+﻿@model IEnumerable<HospitalManagementSystem.Models.Medicine>
+
+@{
+    ViewData["Title"] = "Medicine List";
+}
+
+<h2 class="mt-4"><i class="fas fa-pills"></i> Medicine List</h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a asp-action="Create" class="btn btn-success">
+        <i class="fas fa-plus"></i> Add New Medicine
+    </a>
+</div>
+
+<table id="medicineTable" class="table table-hover table-bordered">
+    <thead class="table-light">
+        <tr>
+            <th><i class="fas fa-capsules"></i> @Html.DisplayNameFor(model => model.Name)</th>
+            <th><i class="fas fa-dollar-sign"></i> @Html.DisplayNameFor(model => model.Price)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                <td>@Html.DisplayFor(modelItem => item.Price)</td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a asp-action="Edit" asp-route-id="@item.MedicineId" class="btn btn-warning btn-sm" title="Edit Medicine">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a asp-action="Details" asp-route-id="@item.MedicineId" class="btn btn-info btn-sm" title="View Details">
+                            <i class="fas fa-info-circle"></i>
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@item.MedicineId" class="btn btn-danger btn-sm" title="Delete Medicine">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- DataTables and jQuery -->
+<script>
+    $(document).ready(function () {
+        $('#medicineTable').DataTable({
+            "paging": true,
+            "lengthMenu": [10, 25, 50, 100],
+            "ordering": true,
+            "info": true,
+            "responsive": true,
+            "language": {
+                "search": "🔍 Search Medicine:",
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ medicines",
+                "infoEmpty": "No medicines available",
+                "zeroRecords": "No matching records found"
+            }
+        });
+    });
+</script>

@@ -9,6 +9,6 @@
         public string PaymentMethod { get; set; } // e.g., Cash, Credit Card
         public bool IsConfirmed { get; set; }
 
-        //public Billing Billing { get; set; }
+        public Billing Billing { get; set; }
     }
 }
