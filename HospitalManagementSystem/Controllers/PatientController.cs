@@ -84,7 +84,7 @@ namespace HospitalManagementSystem.Controllers
                 ViewData["ActivePage"] = "Patient";
                 return View();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Return an error view or redirect to the index with an error message
                 TempData["ErrorMessage"] = "An error occurred while loading the form. Please try again.";

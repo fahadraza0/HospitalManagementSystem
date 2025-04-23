@@ -18,7 +18,10 @@ namespace HospitalManagementSystem.Controllers
             _context = context;
             _userManager = userManager;
         }
-
+        public ActionResult Index()
+        {
+            return RedirectToAction("History", new { patientId = 0 });
+        }
         public async Task<IActionResult> History(int patientId)
         {
             if (patientId == 0)

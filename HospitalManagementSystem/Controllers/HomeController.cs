@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using HospitalManagementSystem.Data;
+using HospitalManagementSystem.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HospitalManagementSystem.Controllers
 {
@@ -9,7 +12,7 @@ namespace HospitalManagementSystem.Controllers
         public IActionResult Index()
         {
             ViewData["ActivePage"] = "Dashboard";
-            return View();
+            return View("AdminDashboard");
         }
     }
 }

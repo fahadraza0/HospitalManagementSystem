@@ -1,0 +1,303 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Admin Dashboard - HMS</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Bootstrap CSS -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+	<!-- Font Awesome -->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+	<!-- Chart.js -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+	<style>
+		body {
+			background-color: #f4f6f9;
+		}
+
+		.dashboard-card {
+			transition: 0.3s;
+			cursor: pointer;
+		}
+
+			.dashboard-card:hover {
+				transform: scale(1.02);
+				box-shadow: 0 0 10px rgba(0,0,0,0.1);
+			}
+
+		.card-icon {
+			font-size: 2.5rem;
+			color: #0d6efd;
+		}
+
+		.card-title {
+			font-weight: 600;
+		}
+
+		.chart-container {
+			background: #fff;
+			border-radius: 10px;
+			padding: 20px;
+			box-shadow: 0 0 10px rgba(0,0,0,0.05);
+			margin-bottom: 20px;
+		}
+
+		h3.count {
+			font-weight: bold;
+			margin-top: 10px;
+		}
+	</style>
+</head>
+<body>
+
+	<div class="container py-4">
+		<h2 class="fw-bold mb-4">Admin Dashboard</h2>
+
+		<!-- Summary Cards -->
+		<div class="row g-4 mb-4">
+			<div class="col-md-3">
+				<div class="card dashboard-card text-center" onclick="navigateTo('team')">
+					<div class="card-body">
+						<i class="fas fa-users-cog card-icon"></i>
+						<h5 class="card-title mt-2">Team</h5>
+						<h3 id="teamCount" class="count">0</h3>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card dashboard-card text-center" onclick="navigateTo('staff')">
+					<div class="card-body">
+						<i class="fas fa-user-nurse card-icon"></i>
+						<h5 class="card-title mt-2">Staff</h5>
+						<h3 id="staffCount" class="count">0</h3>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card dashboard-card text-center" onclick="navigateTo('doctor')">
+					<div class="card-body">
+						<i class="fas fa-user-md card-icon"></i>
+						<h5 class="card-title mt-2">Doctors</h5>
+						<h3 id="doctorCount" class="count">0</h3>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card dashboard-card text-center" onclick="navigateTo('patient')">
+					<div class="card-body">
+						<i class="fas fa-procedures card-icon"></i>
+						<h5 class="card-title mt-2">Patients</h5>
+						<h3 id="patientCount" class="count">0</h3>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Module Shortcuts -->
+		<div class="row g-4 mb-4">
+			<div class="col-md-3" onclick="navigateTo('billing')">
+				<div class="card dashboard-card text-center">
+					<div class="card-body">
+						<i class="fas fa-file-invoice-dollar card-icon"></i>
+						<h5 class="card-title mt-2">Billing</h5>
+						<h3 id="billingCount" class="count">0</h3>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3" onclick="navigateTo('appointment')">
+				<div class="card dashboard-card text-center">
+					<div class="card-body">
+						<i class="fas fa-calendar-check card-icon"></i>
+						<h5 class="card-title mt-2">Appointments</h5>
+						<h3 id="appointmentsCount" class="count">0</h3>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3" onclick="navigateTo('medicines')">
+				<div class="card dashboard-card text-center">
+					<div class="card-body">
+						<i class="fas fa-pills card-icon"></i>
+						<h5 class="card-title mt-2">Medicines</h5>
+						<h3 id="medicinesCount" class="count">0</h3>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3" onclick="navigateTo('treatment')">
+				<div class="card dashboard-card text-center">
+					<div class="card-body">
+						<i class="fas fa-stethoscope card-icon"></i>
+						<h5 class="card-title mt-2">Treatments</h5>
+						<h3 id="treatmentsCount" class="count">0</h3>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-12" onclick="navigateTo('reports')">
+				<div class="card dashboard-card text-center">
+					<div class="card-body">
+						<i class="fas fa-chart-bar card-icon"></i>
+						<h5 class="card-title mt-2">Reports</h5>
+						<h3 id="reportsCount" class="count">10</h3>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Charts -->
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="chart-container">
+					<h5 class="mb-3">Patient Distribution</h5>
+					<canvas id="pieChart"></canvas>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="chart-container">
+					<h5 class="mb-3">Weekly Appointments</h5>
+					<canvas id="barChart"></canvas>
+				</div>
+			</div>
+			<div class="col-12">
+				<div class="chart-container">
+					<h5 class="mb-3">Monthly Revenue</h5>
+					<canvas id="lineChart"></canvas>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Bootstrap Bundle -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	<!-- jQuery -->
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+	<script>
+		// Navigation
+		function navigateTo(module) {
+			window.location.href = `/${module}/Index`;
+		}
+
+		$(document).ready(function () {
+			$.ajax({
+				url: '/api/Data/counts',
+				type: 'GET',
+				success: function (data) {
+					$('#teamCount').text(data.teamCount);
+					$('#staffCount').text(data.staffCount);
+					$('#doctorCount').text(data.doctorCount);
+					$('#patientCount').text(data.patientCount);
+					$('#billingCount').text(data.billingCount);
+					$('#appointmentsCount').text(data.appointmentsCount);
+					$('#medicinesCount').text(data.medicinesCount);
+					$('#treatmentsCount').text(data.treatmentsCount);
+					$('#reportsCount').text(data.reportsCount);
+				},
+				error: function () {
+					console.error('Failed to fetch dashboard counts.');
+				}
+			});
+		});
+
+		// Charts
+		const pieCtx = document.getElementById('pieChart');
+		const barCtx = document.getElementById('barChart');
+		const lineCtx = document.getElementById('lineChart');
+
+			$.ajax({
+			url: '/api/Data/patient-info',
+			method: 'GET',
+			success: function (response) {
+			const chartData = {
+				labels: ['Admitted', 'Not Admitted', 'Assigned', 'Unassigned'],
+				datasets: [{
+					data: [
+						response.admitted,
+						response.notAdmitted,
+						response.assignedPatients,
+						response.unAssignedPatients
+					],
+					backgroundColor: ['#0d6efd', '#ffc107', '#198754', '#dc3545']
+				}]
+			};
+
+				pieChart = new Chart(pieCtx, {
+					type: 'pie',
+					data: chartData
+				});
+			},
+			error: function (err) {
+				console.error('Failed to load pie chart data', err);
+			}
+		});
+			fetch('/api/Data/appointments')
+		.then(response => response.json())
+		.then(data => {
+			console.log(data); // Check the structure of the data
+
+			if (!data || !data.labels || !data.datasets || !Array.isArray(data.labels) || !Array.isArray(data.datasets)) {
+				console.error('Invalid data format!', data);
+				return;
+			}
+
+			// Assuming datasets contains the appointment counts, extract the relevant data
+			const labels = data.labels;  // Days of the week
+			const counts = data.datasets[0].data; // Appointment counts from the first dataset
+
+			if (!Array.isArray(counts)) {
+				console.error('Counts data is not an array!', counts);
+				return;
+			}
+
+			new Chart(barCtx, {
+				type: 'bar',
+				data: {
+					labels: labels,
+					datasets: [{
+						label: 'Appointments',
+						data: counts,
+						backgroundColor: '#0d6efd'
+					}]
+				},
+				options: {
+					scales: {
+						y: {
+							beginAtZero: true
+						}
+					}
+				}
+			});
+		})
+		.catch(error => console.error('Error fetching appointments:', error));
+
+
+			$.ajax({
+			url: '/api/Data/monthly-revenue',
+			method: 'GET',
+			success: function (response) {
+				const labels = response.map(item => item.month);
+				const data = response.map(item => item.revenue);
+
+				new Chart(lineCtx, {
+					type: 'line',
+					data: {
+						labels: labels,
+						datasets: [{
+							label: 'Revenue (PKR)',
+							data: data,
+							fill: true,
+							backgroundColor: 'rgba(13, 110, 253, 0.2)',
+							borderColor: '#0d6efd',
+							tension: 0.3
+						}]
+					}
+				});
+			},
+			error: function (err) {
+				console.error('Error fetching revenue data:', err);
+			}
+		});
+	</script>
+
+</body>
+</html>
