@@ -1,4 +1,7 @@
-﻿using HospitalManagementSystem.Data;
+﻿using System.Numerics;
+using System.Security.Claims;
+using HospitalManagementSystem.Data;
+using HospitalManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -103,6 +106,146 @@ namespace HospitalManagementSystem.Controllers
             };
 
             return new JsonResult(chartData);
+        }
+        [HttpGet("counts-cards")]
+        public async Task<IActionResult> GetDoctorDashboardCounts()
+        {
+            if (User.IsInRole("Doctor"))
+            {
+                var doctorEmail = User.Identity?.Name;
+                var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.Email == doctorEmail);
+                if (doctor != null)
+                {
+                    var appointmentsToday = await _context.Appointments
+                        .CountAsync(a => a.DoctorId == doctor.DoctorId && a.AppointmentDate.Date == DateTime.Today);
+
+                    var myPatientsCount = await _context.Patients
+                        .CountAsync(p => p.AssignedDoctorId == doctor.DoctorId);
+
+                    var treatmentsCount = await _context.TreatmentRecords
+                        .CountAsync(t => t.DoctorId == doctor.DoctorId);
+
+                    var prescriptionsCount = await _context.TreatmentRecords
+                        .Where(t => t.DoctorId == doctor.DoctorId)
+                        .SelectMany(t => t.TreatmentMedicines)
+                        .CountAsync();
+
+                    return Ok(new
+                    {
+                        appointmentsToday,
+                        myPatientsCount,
+                        treatmentsCount,
+                        prescriptionsCount
+                    });
+                }
+            }
+            else if (User.IsInRole("Admin"))
+            {
+                var appointmentsToday = await _context.Appointments
+                    .CountAsync(a => a.AppointmentDate.Date == DateTime.Today);
+
+                var myPatientsCount = await _context.Patients.CountAsync();
+
+                var treatmentsCount = await _context.TreatmentRecords.CountAsync();
+
+                var prescriptionsCount = await _context.TreatmentRecords
+                    .SelectMany(t => t.TreatmentMedicines)
+                    .CountAsync();
+
+                return Ok(new
+                {
+                    appointmentsToday,
+                    myPatientsCount,
+                    treatmentsCount,
+                    prescriptionsCount
+                });
+            }
+
+            return Unauthorized();
+        }
+
+        [HttpGet("appointments-chart")]
+        public async Task<IActionResult> GetDoctorAppointmentsChart()
+        {
+            IQueryable<Appointment> query;
+
+            if (User.IsInRole("Doctor"))
+            {
+                var doctorEmail = User.Identity?.Name;
+                var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.Email == doctorEmail);
+                if (doctor == null) return NotFound("Doctor not found");
+
+                query = _context.Appointments.Where(a => a.DoctorId == doctor.DoctorId);
+            }
+            else if (User.IsInRole("Admin"))
+            {
+                query = _context.Appointments;
+            }
+            else
+            {
+                return Unauthorized();
+            }
+
+            // Materialize the data first to avoid issues with DateTime.ToString in LINQ-to-Entities
+            var appointmentList = await query.ToListAsync();
+
+            var grouped = appointmentList
+                .GroupBy(a => a.AppointmentDate.Date)
+                .OrderBy(g => g.Key)
+                .Select(g => new
+                {
+                    Date = g.Key.ToString("yyyy-MM-dd"),
+                    Count = g.Count()
+                })
+                .ToList();
+
+            return Ok(new
+            {
+                labels = grouped.Select(a => a.Date).ToArray(),
+                data = grouped.Select(a => a.Count).ToArray()
+            });
+        }
+
+        [HttpGet("treatments-chart")]
+        public async Task<IActionResult> GetDoctorTreatmentsChart()
+        {
+            IQueryable<TreatmentRecord> query;
+
+            if (User.IsInRole("Doctor"))
+            {
+                var doctorEmail = User.Identity?.Name;
+                var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.Email == doctorEmail);
+                if (doctor == null) return NotFound("Doctor not found");
+
+                query = _context.TreatmentRecords.Where(t => t.DoctorId == doctor.DoctorId);
+            }
+            else if (User.IsInRole("Admin"))
+            {
+                query = _context.TreatmentRecords;
+            }
+            else
+            {
+                return Unauthorized();
+            }
+
+            // Materialize first, then group and format in memory
+            var treatmentList = await query.ToListAsync();
+
+            var grouped = treatmentList
+                .GroupBy(t => t.TreatmentDate.Date)
+                .OrderBy(g => g.Key)
+                .Select(g => new
+                {
+                    Date = g.Key.ToString("yyyy-MM-dd"),
+                    Count = g.Count()
+                })
+                .ToList();
+
+            return Ok(new
+            {
+                labels = grouped.Select(t => t.Date).ToArray(),
+                data = grouped.Select(t => t.Count).ToArray()
+            });
         }
     }
 }

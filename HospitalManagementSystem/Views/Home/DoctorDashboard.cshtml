@@ -1,0 +1,163 @@
+﻿@{
+    ViewData["Title"] = "Doctor Dashboard";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Dashboard - HMS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .dashboard-card {
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+            .dashboard-card:hover {
+                transform: scale(1.03);
+                box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            }
+
+        .card-icon {
+            font-size: 2.2rem;
+            color: #198754;
+        }
+
+        .chart-container {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <h2 class="fw-bold mb-4">Doctor Dashboard</h2>
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="card dashboard-card text-center" onclick="navigateTo('appointment')">
+                    <div class="card-body">
+                        <i class="fas fa-calendar-check card-icon"></i>
+                        <h5 class="card-title mt-2">My Appointments</h5>
+                        <h3 id="appointmentsToday" class="count">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card dashboard-card text-center" onclick="navigateTo('patient')">
+                    <div class="card-body">
+                        <i class="fas fa-user-injured card-icon"></i>
+                        <h5 class="card-title mt-2">My Patients</h5>
+                        <h3 id="myPatientsCount" class="count">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card dashboard-card text-center" onclick="navigateTo('treatment')">
+                    <div class="card-body">
+                        <i class="fas fa-stethoscope card-icon"></i>
+                        <h5 class="card-title mt-2">Treatments Given</h5>
+                        <h3 id="treatmentsCount" class="count">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card dashboard-card text-center" onclick="navigateTreatment('Treatment')">
+                    <div class="card-body">
+                        <i class="fas fa-prescription-bottle-alt card-icon"></i>
+                        <h5 class="card-title mt-2">Treatment</h5>
+                        <h3 id="prescriptionsCount" class="count">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="chart-container">
+                    <h5 class="mb-3">Daily Appointments</h5>
+                    <canvas id="appointmentsChart"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="chart-container">
+                    <h5 class="mb-3">Treatment Activity</h5>
+                    <canvas id="treatmentsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+        function navigateTo(module) {
+            window.location.href = `/${module}/Index`;
+        }
+        function navigateTreatment(module) {
+            window.location.href = `/${module}/History`;
+        }
+
+        $(document).ready(function () {
+            $.ajax({
+                url: '/api/Data/counts-cards',
+                method: 'GET',
+                success: function (data) {
+                    $('#appointmentsToday').text(data.appointmentsToday);
+                    $('#myPatientsCount').text(data.myPatientsCount);
+                    $('#treatmentsCount').text(data.treatmentsCount);
+                    $('#prescriptionsCount').text(data.prescriptionsCount);
+                },
+                error: function () {
+                    console.error("Failed to load doctor counts.");
+                }
+            });
+
+            $.get('/api/Data/appointments-chart', function (res) {
+                new Chart(document.getElementById('appointmentsChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: res.labels,
+                        datasets: [{
+                            label: 'Appointments',
+                            data: res.data,
+                            backgroundColor: '#198754'
+                        }]
+                    }
+                });
+            });
+
+            $.get('/api/Data/treatments-chart', function (res) {
+                new Chart(document.getElementById('treatmentsChart'), {
+                    type: 'line',
+                    data: {
+                        labels: res.labels,
+                        datasets: [{
+                            label: 'Treatments',
+                            data: res.data,
+                            fill: false,
+                            borderColor: '#198754',
+                            tension: 0.3
+                        }]
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
