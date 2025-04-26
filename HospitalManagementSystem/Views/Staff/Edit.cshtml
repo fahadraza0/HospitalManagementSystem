@@ -35,15 +35,16 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="AssignedWard" class="control-label">Assigned Ward</label>
-        <input asp-for="AssignedWard" class="form-control" />
+        <label asp-for="AssignedWardId" class="control-label">Assigned Ward</label>
+        <select asp-for="AssignedWardId" class="form-control" asp-items="ViewBag.WardList">
+            <option value="">-- Select Ward --</option>
+        </select>
     </div>
 
     <div class="form-group">
         <label asp-for="Role" class="control-label">Role</label>
         <select asp-for="Role" class="form-control">
             <option value="Staff">Staff</option>
-            <option value="Admin">Admin</option>
         </select>
     </div>
 

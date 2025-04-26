@@ -1,0 +1,134 @@
+﻿
+<h2 id="staff-name">Welcome, Staff</h2>
+
+<hr />
+
+<!-- Staff Basic Info -->
+<div class="card mb-4 p-3 shadow-sm" id="staff-info">
+    <h4>Profile Summary</h4>
+    <p><strong>Email:</strong> <span id="email"></span></p>
+    <p><strong>Phone:</strong> <span id="phone"></span></p>
+    <p><strong>Department:</strong> <span id="department"></span></p>
+    <p><strong>Assigned Ward:</strong> <span id="ward"></span></p>
+</div>
+
+<!-- Dashboard Stats -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-info text-white p-3 shadow-sm">
+            <h5>Patients in Ward</h5>
+            <h3 id="total-patients">0</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white p-3 shadow-sm">
+            <h5>Today’s Appointments</h5>
+            <h3 id="total-appointments">0</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Patients in Ward -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header">
+        <h5>Patients in Assigned Ward: <span id="assigned-ward-heading"></span></h5>
+    </div>
+    <div class="card-body">
+        <table class="table table-striped" id="ward-patient-table">
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p id="no-ward-patients" class="text-muted d-none">No patients assigned to this ward.</p>
+    </div>
+</div>
+
+<!-- Today’s Appointments -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header">
+        <h5>Today’s Appointments</h5>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered" id="appointments-table">
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p id="no-appointments" class="text-muted d-none">No appointments scheduled for today.</p>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            loadDashboard();
+        });
+
+        function loadDashboard() {
+            $.get("/api/Data/basic-info", function (data) {
+                console.log(data);
+                $("#staff-name").text("Welcome, " + data.fullName);
+                $("#email").text(data.email);
+                $("#phone").text(data.phoneNumber);
+                $("#department").text(data.department);
+                $("#ward").text(data.wardName);
+                $("#assigned-ward-heading").text(data.wardName);
+            });
+
+            $.get("/api/Data/stats", function (data) {
+                $("#total-patients").text(data.totalPatientsInWard);
+                $("#total-appointments").text(data.totalAppointmentsToday);
+            });
+
+            $.get("/api/Data/ward-patients", function (patients) {
+                const tableBody = $("#ward-patient-table tbody");
+                tableBody.empty();
+                if (patients.length > 0) {
+                    $("#no-ward-patients").addClass("d-none");
+                    patients.forEach(p => {
+                        tableBody.append(`<tr>
+                            <td>${p.fullName}</td>
+                            <td>${p.age}</td>
+                            <td>${p.gender}</td>
+                            <td>${p.status}</td>
+                        </tr>`);
+                    });
+                } else {
+                    $("#no-ward-patients").removeClass("d-none");
+                }
+            });
+
+            $.get("/api/Data/today-appointments", function (appointments) {
+                const tableBody = $("#appointments-table tbody");
+                tableBody.empty();
+                if (appointments.length > 0) {
+                    $("#no-appointments").addClass("d-none");
+                    appointments.forEach(a => {
+                        const apptTime = new Date(a.appointmentDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        tableBody.append(`<tr>
+                            <td>${a.patientName}</td>
+                            <td>${a.doctorName}</td>
+                            <td>${apptTime}</td>
+                            <td>${a.status}</td>
+                        </tr>`);
+                    });
+                } else {
+                    $("#no-appointments").removeClass("d-none");
+                }
+            });
+        }
+    </script>
+}

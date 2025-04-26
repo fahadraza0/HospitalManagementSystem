@@ -247,5 +247,80 @@ namespace HospitalManagementSystem.Controllers
                 data = grouped.Select(t => t.Count).ToArray()
             });
         }
+        [HttpGet("basic-info")]
+        public async Task<IActionResult> GetStaffInfo()
+        {
+            var staffEmail = User.Identity?.Name;
+            var staff = await _context.Staff.Include(s => s.AssignedWard).FirstOrDefaultAsync(s => s.Email == staffEmail);
+
+            if (staff == null)
+                return NotFound("Staff not found");
+
+            return Ok(new
+            {
+                staff.FullName,
+                staff.Email,
+                staff.PhoneNumber,
+                staff.Department,
+                staff.AssignedWard?.WardName,
+                staff.IsActive,
+                staff.CreatedAt
+            });
+        }
+
+        [HttpGet("ward-patients")]
+        public async Task<IActionResult> GetWardPatients()
+        {
+            var staffEmail = User.Identity?.Name;
+            var staff = await _context.Staff.FirstOrDefaultAsync(s => s.Email == staffEmail);
+
+            var patients = await _context.Patients
+                .Where(p => p.Ward.WardId == staff.AssignedWardId)
+                .Select(p => new
+                {
+                    p.PatientId,
+                    p.FullName,
+                    p.Status,
+                    p.AssignedDoctor
+                })
+                .ToListAsync();
+
+            return Ok(patients);
+        }
+
+        [HttpGet("today-appointments")]
+        public async Task<IActionResult> GetTodayAppointments()
+        {
+            var today = DateTime.Today;
+
+            var appointments = await _context.Appointments
+                .Where(a => a.AppointmentDate.Date == today)
+                .Include(a => a.Doctor)
+                .Select(a => new
+                {
+                    PatientName = a.Patient.FullName,
+                    DoctorName = a.Doctor.FullName,
+                    a.AppointmentDate,
+                    a.Status
+                })
+                .ToListAsync();
+
+            return Ok(appointments);
+        }
+
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetDashboardStats()
+        {
+            var patientCount = await _context.Patients.CountAsync();
+            var todayAppointments = await _context.Appointments.CountAsync(a => a.AppointmentDate.Date == DateTime.Today);
+            var activeStaff = await _context.Staff.CountAsync(s => s.IsActive);
+
+            return Ok(new
+            {
+                patientCount,
+                todayAppointments,
+                activeStaff
+            });
+        }
     }
 }

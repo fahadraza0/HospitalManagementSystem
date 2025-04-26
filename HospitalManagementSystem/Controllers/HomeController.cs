@@ -18,5 +18,10 @@ namespace HospitalManagementSystem.Controllers
             ViewData["ActivePage"] = "Dashboard";
             return View();
         }
+        public IActionResult StaffDashboard()
+        {
+            ViewData["ActivePage"] = "Dashboard";
+            return View();
+        }
     }
 }

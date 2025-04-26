@@ -185,34 +185,6 @@ namespace HospitalManagementSystem.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Staff",
-                columns: table => new
-                {
-                    StaffId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Department = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AssignedWard = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Staff", x => x.StaffId);
-                    table.ForeignKey(
-                        name: "FK_Staff_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Beds",
                 columns: table => new
                 {
@@ -230,6 +202,40 @@ namespace HospitalManagementSystem.Migrations
                         principalTable: "Wards",
                         principalColumn: "WardId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Staff",
+                columns: table => new
+                {
+                    StaffId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Department = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AssignedWardId = table.Column<int>(type: "int", nullable: true),
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Staff", x => x.StaffId);
+                    table.ForeignKey(
+                        name: "FK_Staff_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Staff_Wards_AssignedWardId",
+                        column: x => x.AssignedWardId,
+                        principalTable: "Wards",
+                        principalColumn: "WardId",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -267,7 +273,8 @@ namespace HospitalManagementSystem.Migrations
                     MedicineCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     IsPaid = table.Column<bool>(type: "bit", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DoctorId1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -556,6 +563,11 @@ namespace HospitalManagementSystem.Migrations
                 column: "DoctorId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Billings_DoctorId1",
+                table: "Billings",
+                column: "DoctorId1");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Billings_PatientId",
                 table: "Billings",
                 column: "PatientId");
@@ -589,6 +601,11 @@ namespace HospitalManagementSystem.Migrations
                 name: "IX_Payments_BillingId",
                 table: "Payments",
                 column: "BillingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Staff_AssignedWardId",
+                table: "Staff",
+                column: "AssignedWardId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Staff_UserId",
@@ -644,7 +661,7 @@ namespace HospitalManagementSystem.Migrations
                 column: "PatientId",
                 principalTable: "Patients",
                 principalColumn: "PatientId",
-                onDelete: ReferentialAction.Restrict);
+                onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Billings_Doctors_DoctorId",
@@ -655,12 +672,18 @@ namespace HospitalManagementSystem.Migrations
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
+                name: "FK_Billings_Doctors_DoctorId1",
+                table: "Billings",
+                column: "DoctorId1",
+                principalTable: "Doctors",
+                principalColumn: "DoctorId");
+
+            migrationBuilder.AddForeignKey(
                 name: "FK_Billings_Patients_PatientId",
                 table: "Billings",
                 column: "PatientId",
                 principalTable: "Patients",
-                principalColumn: "PatientId",
-                onDelete: ReferentialAction.Cascade);
+                principalColumn: "PatientId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Doctors_Teams_TeamId",

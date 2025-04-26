@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HospitalManagementSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250404211427_UpdatedPatientTable")]
-    partial class UpdatedPatientTable
+    [Migration("20250425122934_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -437,9 +437,8 @@ namespace HospitalManagementSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StaffId"), 1L, 1);
 
-                    b.Property<string>("AssignedWard")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("AssignedWardId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -476,6 +475,8 @@ namespace HospitalManagementSystem.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("StaffId");
+
+                    b.HasIndex("AssignedWardId");
 
                     b.HasIndex("UserId");
 
@@ -803,7 +804,7 @@ namespace HospitalManagementSystem.Migrations
                     b.HasOne("HospitalManagementSystem.Models.Patient", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Appointment");
@@ -868,11 +869,18 @@ namespace HospitalManagementSystem.Migrations
 
             modelBuilder.Entity("HospitalManagementSystem.Models.Staff", b =>
                 {
+                    b.HasOne("HospitalManagementSystem.Models.Ward", "AssignedWard")
+                        .WithMany()
+                        .HasForeignKey("AssignedWardId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("HospitalManagementSystem.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("AssignedWard");
 
                     b.Navigation("User");
                 });

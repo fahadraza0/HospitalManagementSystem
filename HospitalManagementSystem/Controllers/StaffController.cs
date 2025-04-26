@@ -2,6 +2,7 @@
 using HospitalManagementSystem.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace HospitalManagementSystem.Controllers
@@ -30,8 +31,11 @@ namespace HospitalManagementSystem.Controllers
 
         public IActionResult Create()
         {
+            var wards = _context.Wards.ToList();
+            ViewBag.WardList = new SelectList(wards, "WardId", "WardName");
             return View();
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Create(Staff staff)
@@ -40,6 +44,9 @@ namespace HospitalManagementSystem.Controllers
             if (await _userManager.FindByEmailAsync(staff.Email) != null)
             {
                 ModelState.AddModelError("", "Email already exists.");
+
+                // Repopulate ward list if returning to the view due to error
+                ViewBag.WardList = new SelectList(_context.Wards.ToList(), "WardId", "WardName");
                 return View(staff);
             }
 
@@ -56,6 +63,9 @@ namespace HospitalManagementSystem.Controllers
             if (!result.Succeeded)
             {
                 ModelState.AddModelError("", "Failed to create user.");
+
+                // Repopulate ward list again
+                ViewBag.WardList = new SelectList(_context.Wards.ToList(), "WardId", "WardName");
                 return View(staff);
             }
 
@@ -81,6 +91,9 @@ namespace HospitalManagementSystem.Controllers
             var staff = await _context.Staff.FindAsync(id);
             if (staff == null) return NotFound();
 
+            // Fetch the list of wards to populate the Ward dropdown
+            ViewBag.WardList = new SelectList(await _context.Wards.ToListAsync(), "WardId", "WardName", staff.AssignedWardId);
+
             return View(staff);
         }
 
@@ -91,25 +104,34 @@ namespace HospitalManagementSystem.Controllers
             {
                 return NotFound();
             }
-            var existingStaff = await _context.Staff.FindAsync(id);
 
+            var existingStaff = await _context.Staff.FindAsync(id);
             if (existingStaff == null)
             {
                 return NotFound();
             }
 
-            var user = await _userManager.FindByEmailAsync(existingStaff.Email);
+            var user = await _userManager.FindByIdAsync(existingStaff.UserId);
+            if (user == null)
+            {
+                return NotFound();
+            }
 
-            // Update staff details
+            // ✅ Update staff details
             existingStaff.FullName = staff.FullName;
             existingStaff.Email = staff.Email;
             existingStaff.PhoneNumber = staff.PhoneNumber;
             existingStaff.Department = staff.Department;
-            existingStaff.AssignedWard = staff.AssignedWard;
-            existingStaff.Role = staff.Role;
+            existingStaff.AssignedWardId = staff.AssignedWardId; // <- Use WardId
             existingStaff.IsActive = staff.IsActive;
 
-            // Update password only if a new one is provided
+            // ✅ Update user email and phone if changed
+            user.Email = staff.Email;
+            user.UserName = staff.Email;
+            user.PhoneNumber = staff.PhoneNumber;
+            await _userManager.UpdateAsync(user);
+
+            // ✅ Update password only if a new one is provided
             if (!string.IsNullOrEmpty(NewPassword))
             {
                 var passwordHasher = new PasswordHasher<ApplicationUser>();
