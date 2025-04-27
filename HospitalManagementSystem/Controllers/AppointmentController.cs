@@ -112,7 +112,7 @@ namespace HospitalManagementSystem.Controllers
         [Authorize(Roles = "Patient")]
         public async Task<IActionResult> MyAppointments()
         {
-            var currentUser = User.Identity.Name;
+            var currentUser = User.Identity?.Name;
 
             var patientId = await _context.Patients
                     .Where(p => p.Email == currentUser)
@@ -133,7 +133,7 @@ namespace HospitalManagementSystem.Controllers
         [Authorize]
         public async Task<IActionResult> Index()
         {
-            var currentUser = User.Identity.Name;
+            var currentUser = User.Identity?.Name;
 
             // Check if the user is an Admin or Staff
             if (User.IsInRole("Admin") || User.IsInRole("Staff"))

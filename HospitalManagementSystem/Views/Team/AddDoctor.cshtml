@@ -9,7 +9,7 @@
         <label for="DoctorId">Select Doctor</label>
         <select name="doctorId" class="form-control" required>
             <option value="">-- Select Doctor --</option>
-            @foreach (var doctor in ViewBag.Doctors as IEnumerable<HospitalManagementSystem.Models.Doctor>)
+            @foreach (var doctor in (ViewBag.Doctors as IEnumerable<HospitalManagementSystem.Models.Doctor>) ?? Enumerable.Empty<HospitalManagementSystem.Models.Doctor>())
             {
                 <option value="@doctor.DoctorId">@doctor.FullName</option>
             }

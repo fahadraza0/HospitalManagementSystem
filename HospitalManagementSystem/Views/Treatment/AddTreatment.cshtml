@@ -8,7 +8,7 @@
 		<label for="PatientId">Patients</label>
 		<select id="PatientId" asp-for="PatientId" class="form-control" required>
 			<option value="">-- Select Patient --</option>
-			@foreach (var patient in ViewBag.Patients as IEnumerable<HospitalManagementSystem.Models.Patient>)
+			@foreach (var patient in (ViewBag.Patients as IEnumerable<HospitalManagementSystem.Models.Patient>) ?? Enumerable.Empty<HospitalManagementSystem.Models.Patient>())
 			{
 				<option value="@patient.PatientId">@patient.FullName</option>
 			}

@@ -18,8 +18,8 @@
             <tr>
                 <td>@ward.WardName</td>
                 <td>@ward.Capacity</td>
-                <td>@ward.Beds.Count(b => b.IsOccupied)</td>
-                <td>@ward.Beds.Count(b => !b.IsOccupied)</td>
+                <td>@ward.Beds?.Count(b => b.IsOccupied)</td>
+                <td>@ward.Beds?.Count(b => !b.IsOccupied)</td>
             </tr>
         }
     </tbody>

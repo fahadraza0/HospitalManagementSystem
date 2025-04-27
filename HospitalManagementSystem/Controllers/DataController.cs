@@ -276,19 +276,24 @@ namespace HospitalManagementSystem.Controllers
         {
             var staffEmail = User.Identity?.Name;
             var staff = await _context.Staff.FirstOrDefaultAsync(s => s.Email == staffEmail);
+            if (staff == null)
+            {
+                return NotFound();
+            }
 
             var patients = await _context.Patients
-                .Where(p => p.Ward.WardId == staff.AssignedWardId)
-                .Select(p => new
-                {
-                    p.PatientId,
-                    p.FullName,
-                    p.Status,
-                    p.AssignedDoctor,
-                    p.Gender,
-                    p.MedicalHistory
-                })
-                .ToListAsync();
+                                .Where(p => p.Ward != null && p.Ward.WardId == staff.AssignedWardId)
+                                .Select(p => new
+                                {
+                                    p.PatientId,
+                                    p.FullName,
+                                    p.Status,
+                                    p.AssignedDoctor,
+                                    p.Gender,
+                                    p.MedicalHistory
+                                })
+                                .ToListAsync();
+
 
             return Ok(patients);
         }
@@ -329,63 +334,58 @@ namespace HospitalManagementSystem.Controllers
                 activeStaff
             });
         }
+
         [HttpGet("GetPatientInfo")]
-        public async Task<ActionResult<PatientDashboardViewModel>> GetPatientInfo()
+        public async Task<ActionResult<PatientDashboardViewModel>> GetPatientInfo(int? patientId = null)
         {
+            var patientEmail = User.Identity?.Name;
+
+            Patient? patient = null;
+
             if (User.IsInRole("Patient"))
             {
-                var patientEmail = User.Identity?.Name;
-                var patient = await _context.Patients.Include(p => p.AssignedDoctor).Include(p => p.Ward).Include(p => p.Bed).FirstOrDefaultAsync(d => d.Email == patientEmail);
-                if (patient == null)
-                    return NotFound();
-
-                var model = new PatientDashboardViewModel
-                {
-                    FullName = patient.FullName,
-                    DateOfBirth = patient.DateOfBirth.ToString("yyyy-MM-dd"),
-                    Gender = patient.Gender,
-                    PhoneNumber = patient.PhoneNumber,
-                    Email = patient.Email,
-                    Address = patient.Address,
-                    Status = patient.Status,
-                    CreatedAt = patient.CreatedAt.ToString("yyyy-MM-dd"),
-                    DischargeDate = patient.DischargeDate?.ToString("yyyy-MM-dd"),
-                    WardName = patient.Ward.WardName,
-                    BedNumber = patient.Bed.BedId,
-                    AssignedDoctorName = patient.AssignedDoctor?.FullName,
-                    MedicalHistory = patient.MedicalHistory
-                };
-
-                return Ok(model);
+                patient = await _context.Patients
+                    .Include(p => p.AssignedDoctor)
+                    .Include(p => p.Ward)
+                    .Include(p => p.Bed)
+                    .FirstOrDefaultAsync(d => d.Email == patientEmail);
             }
             else if (User.IsInRole("Admin"))
             {
-                var patientEmail = User.Identity?.Name;
-                var patient = await _context.Patients.Include(p => p.AssignedDoctor).Include(p => p.Ward).Include(p => p.Bed).FirstOrDefaultAsync();
-                if (patient == null)
-                    return NotFound();
+                if (patientId == null)
+                    return BadRequest("PatientId is required for Admin.");
 
-                var model = new PatientDashboardViewModel
-                {
-                    FullName = patient.FullName,
-                    DateOfBirth = patient.DateOfBirth.ToString("yyyy-MM-dd"),
-                    Gender = patient.Gender,
-                    PhoneNumber = patient.PhoneNumber,
-                    Email = patient.Email,
-                    Address = patient.Address,
-                    Status = patient.Status,
-                    CreatedAt = patient.CreatedAt.ToString("yyyy-MM-dd"),
-                    DischargeDate = patient.DischargeDate?.ToString("yyyy-MM-dd"),
-                    WardName = patient.Ward.WardName,
-                    BedNumber = patient.Bed.BedId,
-                    AssignedDoctorName = patient.AssignedDoctor?.FullName,
-                    MedicalHistory = patient.MedicalHistory
-                };
-
-                return Ok(model);
+                patient = await _context.Patients
+                    .Include(p => p.AssignedDoctor)
+                    .Include(p => p.Ward)
+                    .Include(p => p.Bed)
+                    .FirstOrDefaultAsync(d => d.PatientId == patientId.Value);
             }
-            return NotFound();
+
+            if (patient == null)
+                return NotFound();
+
+            var model = new PatientDashboardViewModel
+            {
+                FullName = patient.FullName,
+                DateOfBirth = patient.DateOfBirth.ToString("yyyy-MM-dd"),
+                Gender = patient.Gender,
+                PhoneNumber = patient.PhoneNumber,
+                Email = patient.Email,
+                Address = patient.Address,
+                Status = patient.Status,
+                CreatedAt = patient.CreatedAt.ToString("yyyy-MM-dd"),
+                DischargeDate = patient.DischargeDate?.ToString("yyyy-MM-dd"),
+                WardName = patient.Ward?.WardName,
+                BedNumber = patient.Bed?.BedId ?? 0, // ✅ Safe check
+                AssignedDoctorName = patient.AssignedDoctor?.FullName, // ✅ Safe check
+                MedicalHistory = patient.MedicalHistory
+            };
+
+            return Ok(model);
         }
+
+
         [HttpGet("GetMedicalHistory")]
         public async Task<IActionResult> GetMedicalHistory()
         {

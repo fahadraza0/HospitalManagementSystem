@@ -42,7 +42,7 @@
         <label for="TeamId">Team:</label>
         <select asp-for="TeamId" class="form-control">
             <option value="">-- Select Team --</option>
-            @foreach (var team in ViewBag.Teams as List<HospitalManagementSystem.Models.Team>)
+            @foreach (var team in ViewBag.Teams as List<HospitalManagementSystem.Models.Team> ?? new List<HospitalManagementSystem.Models.Team>())
             {
                 <option value="@team.TeamId">@team.TeamName</option>
             }

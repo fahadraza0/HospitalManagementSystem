@@ -17,7 +17,7 @@
                 <td>@doctor.FullName</td>
                 <td>@doctor.Specialization</td>
                 <td>
-                    @foreach (var patient in doctor.Patients)
+                    @foreach (var patient in doctor.Patients ?? new List<HospitalManagementSystem.Models.Patient>())
                     {
                         <p>@patient.FullName</p>
                     }

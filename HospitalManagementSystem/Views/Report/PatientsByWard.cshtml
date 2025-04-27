@@ -19,7 +19,7 @@
                 <td>@ward.Capacity</td>
                 <td>@ward.CurrentOccupancy</td>
                 <td>
-                    @foreach (var patient in ward.Patients)
+                    @foreach (var patient in ward.Patients ?? new List<HospitalManagementSystem.Models.Patient>())
                     {
                         <p>@patient.FullName</p>
                     }

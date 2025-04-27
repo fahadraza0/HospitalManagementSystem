@@ -107,8 +107,13 @@ namespace HospitalManagementSystem.Controllers
 
             bill.IsPaid = true;
             bill.UpdatedAt = DateTime.Now;
-            var treatmentRecord = _context.TreatmentRecords.Where(x => x.BillId == id).FirstOrDefault();
-            treatmentRecord.IsFinalTreatment = true;
+
+            var treatmentRecord = _context.TreatmentRecords.FirstOrDefault(x => x.BillId == id);
+            if (treatmentRecord != null)
+            {
+                treatmentRecord.IsFinalTreatment = true;
+            }
+
             await _context.SaveChangesAsync();
 
             ViewData["ActivePage"] = "Billing";

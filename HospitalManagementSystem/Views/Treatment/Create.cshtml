@@ -10,7 +10,7 @@
             <label for="DoctorId">Doctor</label>
             <select id="DoctorId" asp-for="TreatmentRecord.DoctorId" class="form-control" required>
                 <option value="">-- Select Doctor --</option>
-                @foreach (var doctor in ViewBag.Doctors as List<HospitalManagementSystem.Models.Doctor>)
+                @foreach (var doctor in (ViewBag.Doctors as List<HospitalManagementSystem.Models.Doctor>) ?? new List<HospitalManagementSystem.Models.Doctor>())
                 {
                     <option value="@doctor.DoctorId">@doctor.FullName</option>
                 }
@@ -32,7 +32,7 @@
             <label for="PatientId">Patient</label>
             <select id="PatientId" asp-for="TreatmentRecord.PatientId" class="form-control" required>
                 <option value="">-- Select Patient --</option>
-                @foreach (var patient in ViewBag.Patients as List<HospitalManagementSystem.Models.Patient>)
+                @foreach (var patient in (ViewBag.Patients as List<HospitalManagementSystem.Models.Patient>) ?? new List<HospitalManagementSystem.Models.Patient>())
                 {
                     <option value="@patient.PatientId">@patient.FullName</option>
                 }

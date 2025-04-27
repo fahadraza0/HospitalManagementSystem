@@ -8,7 +8,7 @@ namespace HospitalManagementSystem.Models
         public int WardId { get; set; }
 
         [Required]
-        public string WardName { get; set; }
+        public string? WardName { get; set; }
 
         [Required]
         [Range(1, 1000, ErrorMessage = "Capacity must be between 1 and 1000.")]

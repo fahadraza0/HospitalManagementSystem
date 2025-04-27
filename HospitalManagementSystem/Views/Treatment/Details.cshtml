@@ -38,4 +38,4 @@ else
     <p>No medicines prescribed.</p>
 }
 
-<a class="btn btn-secondary" href="@Url.Action("MedicalHistory", "Patient", new { patientId = Model.Treatment.PatientId })">Back to History</a>
+<a class="btn btn-secondary" href="@Url.Action("MedicalHistory", "Patient", new { patientId = Model.Treatment?.PatientId })">Back to History</a>

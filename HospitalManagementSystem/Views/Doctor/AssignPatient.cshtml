@@ -6,7 +6,7 @@
 
     <label>Select Patient:</label>
     <select name="patientId" class="form-control">
-        @foreach (var patient in ViewBag.Patients as List<HospitalManagementSystem.Models.Patient>)
+        @foreach (var patient in ViewBag.Patients as List<HospitalManagementSystem.Models.Patient> ?? new List<HospitalManagementSystem.Models.Patient>())
         {
             <option value="@patient.PatientId">@patient.FullName</option>
         }

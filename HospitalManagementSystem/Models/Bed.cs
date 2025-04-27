@@ -10,7 +10,7 @@ namespace HospitalManagementSystem.Models
 
         public int WardId { get; set; }
         [ForeignKey("WardId")]
-        public Ward Ward { get; set; }
+        public Ward? Ward { get; set; }
 
         public bool IsOccupied { get; set; } = false;
     }

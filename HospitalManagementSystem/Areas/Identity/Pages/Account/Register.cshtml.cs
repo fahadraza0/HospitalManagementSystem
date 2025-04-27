@@ -56,31 +56,31 @@ namespace HospitalManagementSystem.Areas.Identity.Pages.Account
             [Required]
             [EmailAddress]
             [Display(Name = "Email")]
-            public string Email { get; set; }
+            public string? Email { get; set; }
 
             [Required]
             [StringLength(100, MinimumLength = 6, ErrorMessage = "The password must be at least 6 characters long.")]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
-            public string Password { get; set; }
+            public string? Password { get; set; }
 
             [DataType(DataType.Password)]
             [Display(Name = "Confirm Password")]
             [Compare("Password", ErrorMessage = "The passwords do not match.")]
-            public string ConfirmPassword { get; set; }
+            public string? ConfirmPassword { get; set; }
 
             // ✅ Patient Details
             [Required]
             [Display(Name = "Full Name")]
-            public string FullName { get; set; }
+            public string? FullName { get; set; }
 
             [Required]
             [Display(Name = "Phone Number")]
-            public string PhoneNumber { get; set; }
+            public string? PhoneNumber { get; set; }
 
             [Required]
             [Display(Name = "Address")]
-            public string Address { get; set; }
+            public string? Address { get; set; }
 
             [Required]
             [DataType(DataType.Date)]
@@ -89,7 +89,7 @@ namespace HospitalManagementSystem.Areas.Identity.Pages.Account
 
             [Required]
             [Display(Name = "Gender")]
-            public string Gender { get; set; }
+            public string? Gender { get; set; }
         }
 
         public async Task<IActionResult> OnGetAsync(string returnUrl = null)
@@ -99,7 +99,7 @@ namespace HospitalManagementSystem.Areas.Identity.Pages.Account
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
