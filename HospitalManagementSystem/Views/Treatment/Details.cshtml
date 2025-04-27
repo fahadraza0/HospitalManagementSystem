@@ -1,20 +1,17 @@
-﻿@model HospitalManagementSystem.Models.TreatmentRecord
-@{
-    var medicines = ViewBag.Medicines as List<HospitalManagementSystem.Models.TreatmentMedicine>;
-}
+﻿@model HospitalManagementSystem.ViewModel.TreatmentRecordDetailsViewModel
 
 <h2>Treatment Record Details</h2>
 
 <table class="table table-bordered">
-    <tr><th>Date</th><td>@Model.TreatmentDate.ToString("yyyy-MM-dd HH:mm")</td></tr>
-    <tr><th>Doctor</th><td>@Model.Doctor?.FullName</td></tr>
-    <tr><th>Patient</th><td>@Model.Patient?.FullName</td></tr>
-    <tr><th>Diagnosis</th><td>@Model.Diagnosis</td></tr>
-    <tr><th>Prescriptions</th><td>@Model.Prescriptions</td></tr>
+    <tr><th>Date</th><td>@Model.Treatment?.TreatmentDate.ToString("yyyy-MM-dd HH:mm")</td></tr>
+    <tr><th>Doctor</th><td>@Model.Treatment?.Doctor?.FullName</td></tr>
+    <tr><th>Patient</th><td>@Model.Treatment?.Patient?.FullName</td></tr>
+    <tr><th>Diagnosis</th><td>@Model.Treatment?.Diagnosis</td></tr>
+    <tr><th>Prescriptions</th><td>@Model.Treatment?.Prescriptions</td></tr>
 </table>
 
 <h4>Prescribed Medicines</h4>
-@if (medicines != null && medicines.Any())
+@if (Model.Medicines != null && Model.Medicines.Any())
 {
     <table class="table table-striped table-bordered">
         <thead>
@@ -25,7 +22,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var med in medicines)
+            @foreach (var med in Model.Medicines)
             {
                 <tr>
                     <td>@med.Medicine?.Name</td>
@@ -41,4 +38,4 @@ else
     <p>No medicines prescribed.</p>
 }
 
-<a class="btn btn-secondary" href="@Url.Action("History", "Treatment", new { patientId = Model.PatientId })">Back to History</a>
+<a class="btn btn-secondary" href="@Url.Action("MedicalHistory", "Patient", new { patientId = Model.Treatment.PatientId })">Back to History</a>

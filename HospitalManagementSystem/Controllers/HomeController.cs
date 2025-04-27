@@ -11,14 +11,38 @@ namespace HospitalManagementSystem.Controllers
         public IActionResult Index()
         {
             ViewData["ActivePage"] = "Dashboard";
-            return View("AdminDashboard");
+
+            if (User.IsInRole("Admin"))
+            {
+                return View("AdminDashboard");
+            }
+            else if (User.IsInRole("Staff"))
+            {
+                return View("StaffDashboard");
+            }
+            else if (User.IsInRole("Doctor"))
+            {
+                return View("DoctorDashboard");
+            }
+            else if (User.IsInRole("Patient"))
+            {
+                return View("PatientDashboard");
+            }
+
+            return RedirectToAction("Login", "Account");
         }
+
         public IActionResult DoctorDashboard()
         {
             ViewData["ActivePage"] = "Dashboard";
             return View();
         }
         public IActionResult StaffDashboard()
+        {
+            ViewData["ActivePage"] = "Dashboard";
+            return View();
+        }
+        public IActionResult PatientDashboard()
         {
             ViewData["ActivePage"] = "Dashboard";
             return View();

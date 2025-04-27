@@ -1,5 +1,6 @@
 ﻿using HospitalManagementSystem.Data;
 using HospitalManagementSystem.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HospitalManagementSystem.Controllers
 {
+    [Authorize]
     public class StaffController : Controller
     {
         private readonly ApplicationDbContext _context;

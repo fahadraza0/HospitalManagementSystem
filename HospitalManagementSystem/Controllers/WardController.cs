@@ -1,10 +1,12 @@
 ﻿using HospitalManagementSystem.Data;
 using HospitalManagementSystem.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace HospitalManagementSystem.Controllers
 {
+    [Authorize]
     public class WardController : Controller
     {
         private readonly ApplicationDbContext _context;

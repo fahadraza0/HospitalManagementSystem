@@ -120,6 +120,12 @@
 						</a>
 					</li>
 
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "CreateBilling" ? "active" : "")">
+						<a class="nav-link" asp-controller="Billing" asp-action="Create">
+							<i class="fas fa-receipt"></i> Create Bill
+						</a>
+					</li>
+
 					<li class="nav-item @((ViewData["ActivePage"] as string) == "Reports" ? "active" : "")">
 						<a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#reportsMenu" aria-expanded="false" aria-controls="reportsMenu">
 							<i class="fas fa-file-alt"></i> Reports
@@ -192,7 +198,7 @@
 							<i class="fas fa-user-md"></i> My Profile
 						</a>
 					</li>
-						
+
 					<li class="nav-item @((ViewData["ActivePage"] as string) == "Appointment" ? "active" : "")">
 						<a class="nav-link" asp-controller="Appointment" asp-action="Index">
 							<i class="fas fa-calendar-check"></i> My Appointments
@@ -205,15 +211,27 @@
 						</a>
 					</li>
 
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "PatientAssistance" ? "active" : "")">
+						<a class="nav-link" asp-controller="Treatment" asp-action="Create">
+							<i class="fas fa-notes-medical"></i> Patient Treatment
+						</a>
+					</li>
+
 					<li class="nav-item @((ViewData["ActivePage"] as string) == "Treatment" ? "active" : "")">
-						<a class="nav-link" asp-controller="Treatment" asp-action="AddTreatment">
-							<i class="fas fa-user-nurse"></i> Patient Treatment
+						<a class="nav-link" asp-controller="Treatment" asp-action="History">
+							<i class="fas fa-file-medical-alt"></i> Patient Record
 						</a>
 					</li>
 
 					<li class="nav-item @((ViewData["ActivePage"] as string) == "Reports" ? "active" : "")">
 						<a class="nav-link" asp-controller="Report" asp-action="PatientsByDoctor">
 							<i class="fas fa-file-medical"></i> My Reports
+						</a>
+					</li>
+
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "MyPatientsBills" ? "active" : "")">
+						<a class="nav-link" asp-controller="Billing" asp-action="MyPatientsBills">
+							<i class="fas fa-file-invoice-dollar"></i> My Bills
 						</a>
 					</li>
 				}
@@ -227,7 +245,7 @@
 						</a>
 					</li>
 
-					<li class="nav-item @((ViewData["ActivePage"] as string) == "PatientAssistance" ? "active" : "")">
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "Patient" ? "active" : "")">
 						<a class="nav-link" asp-controller="Patient" asp-action="Index">
 							<i class="fas fa-user-injured"></i> Patient Assistance
 						</a>
@@ -239,9 +257,44 @@
 						</a>
 					</li>
 
-					<li class="nav-item @((ViewData["ActivePage"] as string) == "Reports" ? "active" : "")">
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "CreateBilling" ? "active" : "")">
+						<a class="nav-link" asp-controller="Billing" asp-action="Create">
+							<i class="fas fa-receipt"></i> Create Bill
+						</a>
+					</li>
+
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "StaffActivityReports" ? "active" : "")">
 						<a class="nav-link" asp-controller="Report" asp-action="StaffActivityReports">
 							<i class="fas fa-chart-line"></i> Staff Reports
+						</a>
+					</li>
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "PatientsByWard" ? "active" : "")">
+						<a class="nav-link" asp-controller="Report" asp-action="PatientsByWard">
+							<i class="fas fa-procedures"></i> Patients by Ward
+						</a>
+					</li>
+
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "PatientsByDoctor" ? "active" : "")">
+						<a class="nav-link" asp-controller="Report" asp-action="PatientsByDoctor">
+							<i class="fas fa-user-md"></i> Patients by Doctor
+						</a>
+					</li>
+
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "WardOccupancy" ? "active" : "")">
+						<a class="nav-link" asp-controller="Report" asp-action="WardOccupancy">
+							<i class="fas fa-hospital-user"></i> Ward Occupancy
+						</a>
+					</li>
+
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "DischargeReports" ? "active" : "")">
+						<a class="nav-link" asp-controller="Report" asp-action="DischargeReports">
+							<i class="fas fa-file-medical-alt"></i> Discharge Reports
+						</a>
+					</li>
+
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "AppointmentReports" ? "active" : "")">
+						<a class="nav-link" asp-controller="Report" asp-action="AppointmentReports">
+							<i class="fas fa-calendar-alt"></i> Appointment Reports
 						</a>
 					</li>
 				}
@@ -264,6 +317,11 @@
 					<li class="nav-item @((ViewData["ActivePage"] as string) == "MedicalHistory" ? "active" : "")">
 						<a class="nav-link" asp-controller="Patient" asp-action="MedicalHistory">
 							<i class="fas fa-file-medical-alt"></i> Medical History
+						</a>
+					</li>
+					<li class="nav-item @((ViewData["ActivePage"] as string) == "MyBills" ? "active" : "")">
+						<a class="nav-link" asp-controller="Billing" asp-action="MyBills">
+							<i class="fas fa-file-medical-alt"></i> My Bills
 						</a>
 					</li>
 				}

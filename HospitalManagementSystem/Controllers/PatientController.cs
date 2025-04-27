@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HospitalManagementSystem.Controllers
 {
+    [Authorize]
     public class PatientController : Controller
     {
         private readonly ApplicationDbContext _context;

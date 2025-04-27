@@ -1,0 +1,51 @@
+﻿@model List<HospitalManagementSystem.Models.Billing>
+
+@{
+    ViewData["Title"] = "My Patients' Bills";
+}
+
+<h2 class="mb-4">My Patients' Bills</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No bills found.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Bill ID</th>
+                <th>Patient Name</th>
+                <th>Appointment Date</th>
+                <th>Total Amount</th>
+                <th>Payment Status</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var bill in Model)
+            {
+                <tr>
+                    <td>@bill.BillingId</td>
+                    <td>@bill.Patient?.FullName</td>
+                    <td>@bill.Appointment?.AppointmentDate.ToString("yyyy-MM-dd")</td>
+                    <td>PKR @bill.TotalAmount.ToString("0.00")</td>
+                    <td>
+                        @if (bill.IsPaid)
+                        {
+                            <span class="badge bg-success">Paid</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Unpaid</span>
+                        }
+                    </td>
+                    <td>@bill.CreatedAt.ToString("yyyy-MM-dd")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

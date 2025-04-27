@@ -2,6 +2,8 @@
 using System.Security.Claims;
 using HospitalManagementSystem.Data;
 using HospitalManagementSystem.Models;
+using HospitalManagementSystem.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +11,7 @@ namespace HospitalManagementSystem.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class DataController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -281,7 +284,9 @@ namespace HospitalManagementSystem.Controllers
                     p.PatientId,
                     p.FullName,
                     p.Status,
-                    p.AssignedDoctor
+                    p.AssignedDoctor,
+                    p.Gender,
+                    p.MedicalHistory
                 })
                 .ToListAsync();
 
@@ -301,6 +306,8 @@ namespace HospitalManagementSystem.Controllers
                     PatientName = a.Patient.FullName,
                     DoctorName = a.Doctor.FullName,
                     a.AppointmentDate,
+                    a.StartTime,
+                    a.EndTime,
                     a.Status
                 })
                 .ToListAsync();
@@ -321,6 +328,117 @@ namespace HospitalManagementSystem.Controllers
                 todayAppointments,
                 activeStaff
             });
+        }
+        [HttpGet("GetPatientInfo")]
+        public async Task<ActionResult<PatientDashboardViewModel>> GetPatientInfo()
+        {
+            if (User.IsInRole("Patient"))
+            {
+                var patientEmail = User.Identity?.Name;
+                var patient = await _context.Patients.Include(p => p.AssignedDoctor).Include(p => p.Ward).Include(p => p.Bed).FirstOrDefaultAsync(d => d.Email == patientEmail);
+                if (patient == null)
+                    return NotFound();
+
+                var model = new PatientDashboardViewModel
+                {
+                    FullName = patient.FullName,
+                    DateOfBirth = patient.DateOfBirth.ToString("yyyy-MM-dd"),
+                    Gender = patient.Gender,
+                    PhoneNumber = patient.PhoneNumber,
+                    Email = patient.Email,
+                    Address = patient.Address,
+                    Status = patient.Status,
+                    CreatedAt = patient.CreatedAt.ToString("yyyy-MM-dd"),
+                    DischargeDate = patient.DischargeDate?.ToString("yyyy-MM-dd"),
+                    WardName = patient.Ward.WardName,
+                    BedNumber = patient.Bed.BedId,
+                    AssignedDoctorName = patient.AssignedDoctor?.FullName,
+                    MedicalHistory = patient.MedicalHistory
+                };
+
+                return Ok(model);
+            }
+            else if (User.IsInRole("Admin"))
+            {
+                var patientEmail = User.Identity?.Name;
+                var patient = await _context.Patients.Include(p => p.AssignedDoctor).Include(p => p.Ward).Include(p => p.Bed).FirstOrDefaultAsync();
+                if (patient == null)
+                    return NotFound();
+
+                var model = new PatientDashboardViewModel
+                {
+                    FullName = patient.FullName,
+                    DateOfBirth = patient.DateOfBirth.ToString("yyyy-MM-dd"),
+                    Gender = patient.Gender,
+                    PhoneNumber = patient.PhoneNumber,
+                    Email = patient.Email,
+                    Address = patient.Address,
+                    Status = patient.Status,
+                    CreatedAt = patient.CreatedAt.ToString("yyyy-MM-dd"),
+                    DischargeDate = patient.DischargeDate?.ToString("yyyy-MM-dd"),
+                    WardName = patient.Ward.WardName,
+                    BedNumber = patient.Bed.BedId,
+                    AssignedDoctorName = patient.AssignedDoctor?.FullName,
+                    MedicalHistory = patient.MedicalHistory
+                };
+
+                return Ok(model);
+            }
+            return NotFound();
+        }
+        [HttpGet("GetMedicalHistory")]
+        public async Task<IActionResult> GetMedicalHistory()
+        {
+            var patientEmail = User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(patientEmail))
+                return Unauthorized();
+
+            var patient = await _context.Patients.FirstOrDefaultAsync(d => d.Email == patientEmail);
+            if (patient == null)
+                return NotFound();
+
+            var histories = await _context.TreatmentRecords
+                .Where(t => t.PatientId == patient.PatientId)
+                .Select(t => $"{t.TreatmentDate.ToShortDateString()} - {t.Diagnosis}")
+                .ToListAsync();
+
+            return Ok(histories);
+        }
+
+        [HttpGet("GetBillingInfo")]
+        public async Task<IActionResult> GetBillingInfo()
+        {
+            var patientEmail = User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(patientEmail))
+                return Unauthorized();
+
+            var patient = await _context.Patients.FirstOrDefaultAsync(d => d.Email == patientEmail);
+            if (patient == null)
+                return NotFound();
+
+            var totalBills = await _context.Billings
+                .Where(b => b.PatientId == patient.PatientId)
+                .CountAsync();
+
+            return Ok(new { totalBills });
+        }
+
+        [HttpGet("GetAppointments")]
+        public async Task<IActionResult> GetAppointments()
+        {
+            var patientEmail = User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(patientEmail))
+                return Unauthorized();
+
+            var patient = await _context.Patients.FirstOrDefaultAsync(d => d.Email == patientEmail);
+            if (patient == null)
+                return NotFound();
+
+            var totalAppointments = await _context.Appointments
+                .Where(a => a.PatientId == patient.PatientId)
+                .CountAsync();
+
+            return Ok(new { totalAppointments });
         }
     }
 }
