@@ -22,7 +22,11 @@ namespace HospitalManagementSystem.Models
 
         public string Department { get; set; }
 
-        public string AssignedWard { get; set; }
+        [Display(Name = "Assigned Ward")]
+        public int? AssignedWardId { get; set; }
+
+        [ForeignKey("AssignedWardId")]
+        public Ward? AssignedWard { get; set; }
 
         public string Role { get; set; } = "Staff";  // Ensure role is set to Staff
 

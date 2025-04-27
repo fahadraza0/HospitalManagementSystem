@@ -25,10 +25,30 @@ namespace HospitalManagementSystem.Controllers
         [Authorize(Roles = "Admin,Doctor")]
         public async Task<IActionResult> Index()
         {
-            var doctors = await _context.Doctors.Include(d => d.Team).ToListAsync();
+            var user = await _userManager.GetUserAsync(User);
 
-            ViewData["ActivePage"] = "Doctor";
-            return View(doctors);
+            if (await _userManager.IsInRoleAsync(user, "Doctor"))
+            {
+                // Get the doctor's details based on logged-in user's email
+                var doctor = await _context.Doctors
+                                           .Include(d => d.Team)
+                                           .FirstOrDefaultAsync(d => d.Email == user.Email);
+
+                if (doctor == null)
+                {
+                    return NotFound();
+                }
+
+                ViewData["ActivePage"] = "MyProfile";
+                return View("DoctorProfile", doctor); // Go to a new View: DoctorProfile.cshtml
+            }
+            else
+            {
+                var doctors = await _context.Doctors.Include(d => d.Team).ToListAsync();
+
+                ViewData["ActivePage"] = "Doctor";
+                return View(doctors); // existing view showing all doctors for Admin
+            }
         }
 
         [Authorize(Roles = "Admin")]
@@ -247,8 +267,18 @@ namespace HospitalManagementSystem.Controllers
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                user = new ApplicationUser { UserName = email, Email = email };
-                await _userManager.CreateAsync(user, password);
+                user = new ApplicationUser
+                {
+                    UserName = email,
+                    Email = email,
+                    EmailConfirmed = true
+                };
+
+                var result = await _userManager.CreateAsync(user, password);
+                if (!result.Succeeded)
+                {
+                    throw new Exception($"Failed to create user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
             }
 
             if (!await _userManager.IsInRoleAsync(user, role))

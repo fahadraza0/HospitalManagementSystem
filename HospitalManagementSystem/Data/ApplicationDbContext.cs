@@ -10,6 +10,7 @@ namespace HospitalManagementSystem.Data
             : base(options)
         {
         }
+
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Staff> Staff { get; set; }
         public DbSet<Doctor> Doctors { get; set; }
@@ -23,7 +24,6 @@ namespace HospitalManagementSystem.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Medicine> Medicines { get; set; }
         public DbSet<TreatmentMedicine> TreatmentMedicines { get; set; }
-
 
         // Configure the model relationships in OnModelCreating
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -55,14 +55,28 @@ namespace HospitalManagementSystem.Data
                 .HasForeignKey(tm => tm.MedicineId)
                 .OnDelete(DeleteBehavior.Restrict); // Optional: Restrict delete for Medicine
 
+            // Billing and Doctor relationship (no cascade delete)
             modelBuilder.Entity<Billing>()
                 .HasOne(b => b.Doctor)
                 .WithMany()
                 .HasForeignKey(b => b.DoctorId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict); // Avoid cascading delete for Doctor
+
+            // Billing and Patient relationship (no cascade delete)
+            modelBuilder.Entity<Billing>()
+                .HasOne(b => b.Patient)
+                .WithMany()
+                .HasForeignKey(b => b.PatientId)
+                .OnDelete(DeleteBehavior.NoAction); // Change this to explicitly use NoAction // Avoid cascading delete for Patient
+
+            // Staff and Ward relationship (no cascading delete)
+            modelBuilder.Entity<Staff>() // Correctly specifying Staff entity
+                .HasOne(s => s.AssignedWard)
+                .WithMany() // Assuming Ward does not have a navigation property for Staff
+                .HasForeignKey(s => s.AssignedWardId)
+                .OnDelete(DeleteBehavior.SetNull); // Optional: Set AssignedWardId to null when Ward is deleted
 
             // You can add other relationship configurations here if needed
         }
-
     }
 }

@@ -435,9 +435,8 @@ namespace HospitalManagementSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StaffId"), 1L, 1);
 
-                    b.Property<string>("AssignedWard")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("AssignedWardId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -474,6 +473,8 @@ namespace HospitalManagementSystem.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("StaffId");
+
+                    b.HasIndex("AssignedWardId");
 
                     b.HasIndex("UserId");
 
@@ -801,7 +802,7 @@ namespace HospitalManagementSystem.Migrations
                     b.HasOne("HospitalManagementSystem.Models.Patient", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Appointment");
@@ -866,11 +867,18 @@ namespace HospitalManagementSystem.Migrations
 
             modelBuilder.Entity("HospitalManagementSystem.Models.Staff", b =>
                 {
+                    b.HasOne("HospitalManagementSystem.Models.Ward", "AssignedWard")
+                        .WithMany()
+                        .HasForeignKey("AssignedWardId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("HospitalManagementSystem.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("AssignedWard");
 
                     b.Navigation("User");
                 });

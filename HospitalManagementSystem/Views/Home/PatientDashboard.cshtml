@@ -1,0 +1,155 @@
+﻿@model HospitalManagementSystem.ViewModel.PatientDashboardViewModel
+@{
+    ViewData["Title"] = "Patient Dashboard";
+}
+
+<div class="container py-5">
+    <h1 class="mb-4 text-center">Patient Dashboard</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5>Personal Information</h5>
+                </div>
+                <div class="card-body" id="personalInfo">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow border-0">
+                <div class="card-header bg-success text-white">
+                    <h5>Admission Details</h5>
+                </div>
+                <div class="card-body" id="admissionInfo">
+                    <div class="text-center">
+                        <div class="spinner-border text-success" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12 mb-4">
+            <div class="card shadow border-0">
+                <div class="card-header bg-warning">
+                    <h5>Medical History</h5>
+                </div>
+                <div class="card-body" id="medicalHistory">
+                    <div class="text-center">
+                        <div class="spinner-border text-warning" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow border-0">
+                <div class="card-header bg-info text-white">
+                    <h5>Billing & Payments</h5>
+                </div>
+                <div class="card-body" id="billingInfo">
+                    <div class="text-center">
+                        <div class="spinner-border text-info" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow border-0">
+                <div class="card-header bg-secondary text-white">
+                    <h5>Appointments</h5>
+                </div>
+                <div class="card-body" id="appointmentInfo">
+                    <div class="text-center">
+                        <div class="spinner-border text-secondary" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(function () {
+            // Load personal and admission info
+            $.ajax({
+                url: '/api/Data/GetPatientInfo',
+                method: 'GET',
+                success: function (data) {
+                    $('#personalInfo').html(`
+                        <p><strong>Name:</strong> ${data.fullName}</p>
+                        <p><strong>Date of Birth:</strong> ${data.dateOfBirth}</p>
+                        <p><strong>Gender:</strong> ${data.gender}</p>
+                        <p><strong>Phone:</strong> ${data.phoneNumber}</p>
+                        <p><strong>Email:</strong> ${data.email}</p>
+                        <p><strong>Address:</strong> ${data.address}</p>
+                    `);
+
+                    $('#admissionInfo').html(`
+                        <p><strong>Status:</strong> ${data.status}</p>
+                        <p><strong>Admitted On:</strong> ${data.createdAt}</p>
+                        ${data.dischargeDate ? `<p><strong>Discharged On:</strong> ${data.dischargeDate}</p>` : ''}
+                        <p><strong>Ward:</strong> ${data.wardName || 'N/A'}</p>
+                        <p><strong>Bed:</strong> ${data.bedNumber || 'N/A'}</p>
+                        <p><strong>Doctor:</strong> ${data.assignedDoctorName || 'N/A'}</p>
+                    `);
+                },
+                error: function () {
+                    alert('Error loading personal info.');
+                }
+            });
+
+            // Load medical history
+            $.ajax({
+                url: '/api/Data/GetMedicalHistory',
+                method: 'GET',
+                success: function (data) {
+                    $('#medicalHistory').html(
+                        data.length > 0
+                        ? data.map(x => `<p>${x}</p>`).join("")
+                        : "<p>No medical history available.</p>"
+                    );
+                },
+                error: function () {
+                    alert('Error loading medical history.');
+                }
+            });
+
+            // Load billing info
+            $.ajax({
+                url: '/api/Data/GetBillingInfo',
+                method: 'GET',
+                success: function (data) {
+                    $('#billingInfo').html(`
+                        <a href="/Billing/MyBills" class="btn btn-outline-info btn-sm">View Billing (${data.totalBills} bills)</a>
+                    `);
+                },
+                error: function () {
+                    alert('Error loading billing info.');
+                }
+            });
+
+            // Load appointments
+            $.ajax({
+                url: '/api/Data/GetAppointments',
+                method: 'GET',
+                success: function (data) {
+                    $('#appointmentInfo').html(`
+                        <a href="/Appointment/MyAppointments" class="btn btn-outline-secondary btn-sm">View Appointments (${data.totalAppointments} appointments)</a>
+                    `);
+                },
+                error: function () {
+                    alert('Error loading appointments.');
+                }
+            });
+        });
+    </script>
+}

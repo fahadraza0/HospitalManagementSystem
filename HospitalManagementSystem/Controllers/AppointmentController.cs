@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HospitalManagementSystem.Controllers
 {
+    [Authorize]
     public class AppointmentController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -27,15 +28,13 @@ namespace HospitalManagementSystem.Controllers
                 return Unauthorized();
             }
 
-            var patient = await _context.Patients
-                .FirstOrDefaultAsync(p => p.UserId == userId);
+            var patient = await _context.Patients.Where(p => p.UserId == userId).FirstOrDefaultAsync();
 
             if (patient == null)
             {
                 return NotFound("Patient profile not found.");
             }
 
-            ViewBag.PatientId = patient.PatientId;
             ViewBag.Doctors = await _context.Doctors.Where(d => d.IsAvailable).ToListAsync();
             ViewData["ActivePage"] = "Appointment";
             return View();
@@ -107,7 +106,7 @@ namespace HospitalManagementSystem.Controllers
             TempData["SuccessMessage"] = "Appointment booked successfully!";
 
             ViewData["ActivePage"] = "Appointment";
-            return RedirectToAction("Index", "Appointment");
+            return RedirectToAction("MyAppointments", "Appointment");
         }
 
         [Authorize(Roles = "Patient")]
@@ -127,11 +126,11 @@ namespace HospitalManagementSystem.Controllers
                 .ThenInclude(d => d.Teams)
                 .ToListAsync();
 
-            ViewData["ActivePage"] = "Appointment";
+            ViewData["ActivePage"] = "MyAppointments";
             return View(appointments);
         }
 
-        [Authorize(Roles = "Admin, Doctor, Staff")]
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var currentUser = User.Identity.Name;
@@ -169,20 +168,8 @@ namespace HospitalManagementSystem.Controllers
             // Check if the user is a Patient
             else if (User.IsInRole("Patient"))
             {
-                var patientId = await _context.Patients
-                    .Where(p => p.Email == currentUser)
-                    .Select(p => p.PatientId)
-                    .FirstOrDefaultAsync();
-
-                var appointments = await _context.Appointments
-                    .Where(a => a.PatientId == patientId)
-                    .Include(a => a.Patient)
-                    .Include(a => a.Doctor)
-                    .ThenInclude(d => d.Teams)
-                    .ToListAsync();
-
                 ViewData["ActivePage"] = "Appointment";
-                return View(appointments);
+                return View("MyAppointments");
             }
 
             // Fallback if user role is not recognized

@@ -1,4 +1,5 @@
-﻿using HospitalManagementSystem.Data;
+﻿using System.Security.Claims;
+using HospitalManagementSystem.Data;
 using HospitalManagementSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HospitalManagementSystem.Controllers
 {
+    [Authorize]
     public class BillingController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -50,7 +52,7 @@ namespace HospitalManagementSystem.Controllers
         {
             ViewBag.Doctors = await _context.Doctors.ToListAsync();
 
-            ViewData["ActivePage"] = "Billing";
+            ViewData["ActivePage"] = "CreateBilling";
             return View();
         }
 
@@ -58,16 +60,28 @@ namespace HospitalManagementSystem.Controllers
         [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> Create(Billing billing)
         {
+            // Check if a paid bill already exists for the same patient and doctor
+            bool billAlreadyPaid = await _context.Billings
+                .AnyAsync(b => b.PatientId == billing.PatientId
+                            && b.DoctorId == billing.DoctorId
+                            && b.IsPaid == true);
 
+            if (billAlreadyPaid)
+            {
+                TempData["ErrorMessage"] = "Bill has already been paid for this patient and doctor.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // If no paid bill exists, proceed
             billing.CreatedAt = DateTime.Now;
             _context.Billings.Add(billing);
             await _context.SaveChangesAsync();
 
             var relatedTreatments = await _context.TreatmentRecords
-        .Where(tr => tr.PatientId == billing.PatientId
-                     && tr.DoctorId == billing.DoctorId
-                     && tr.BillId == null)
-        .ToListAsync();
+                .Where(tr => tr.PatientId == billing.PatientId
+                             && tr.DoctorId == billing.DoctorId
+                             && tr.BillId == null)
+                .ToListAsync();
 
             foreach (var treatment in relatedTreatments)
             {
@@ -176,6 +190,48 @@ namespace HospitalManagementSystem.Controllers
                 doctorId = doctorId
             });
         }
+        [Authorize(Roles = "Admin, Patient")]
+        public async Task<IActionResult> MyBills()
+        {
+            var patientEmail = User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(patientEmail))
+                return Unauthorized();
 
+            var patient = await _context.Patients.FirstOrDefaultAsync(p => p.Email == patientEmail);
+            if (patient == null)
+                return NotFound();
+
+            var myBills = await _context.Billings
+                .Where(b => b.PatientId == patient.PatientId)
+                .Include(b => b.Doctor)
+                .Include(b => b.Appointment)
+                .OrderByDescending(b => b.CreatedAt)
+                .ToListAsync();
+
+            ViewData["ActivePage"] = "MyBills";
+            return View(myBills);
+        }
+
+        [Authorize(Roles = "Admin, Doctor")]
+        public async Task<IActionResult> MyPatientsBills()
+        {
+            var doctorEmail = User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(doctorEmail))
+                return Unauthorized();
+
+            var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.Email == doctorEmail);
+            if (doctor == null)
+                return NotFound();
+
+            var myPatientsBills = await _context.Billings
+                .Where(b => b.DoctorId == doctor.DoctorId)
+                .Include(b => b.Patient)
+                .Include(b => b.Appointment)
+                .OrderByDescending(b => b.CreatedAt)
+                .ToListAsync();
+
+            ViewData["ActivePage"] = "MyPatientsBills";
+            return View(myPatientsBills);
+        }
     }
 }

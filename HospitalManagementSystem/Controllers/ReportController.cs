@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HospitalManagementSystem.Controllers
 {
+    [Authorize]
     public class ReportController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -166,7 +167,6 @@ namespace HospitalManagementSystem.Controllers
         public async Task<IActionResult> StaffActivityReports()
         {
             var staffActivities = await _context.Staff
-                .Include(s => s.Department)
                 .ToListAsync();
 
             ViewData["ActivePage"] = "MyReports";

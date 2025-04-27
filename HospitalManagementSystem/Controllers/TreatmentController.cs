@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HospitalManagementSystem.Controllers
 {
+    [Authorize]
     public class TreatmentController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -18,7 +19,10 @@ namespace HospitalManagementSystem.Controllers
             _context = context;
             _userManager = userManager;
         }
-
+        public ActionResult Index()
+        {
+            return RedirectToAction("History", new { patientId = 0 });
+        }
         public async Task<IActionResult> History(int patientId)
         {
             if (patientId == 0)
@@ -40,6 +44,7 @@ namespace HospitalManagementSystem.Controllers
             var patient = await _context.Patients.FindAsync(patientId);
             ViewBag.PatientName = patient?.FullName;
 
+            ViewData["ActivePage"] = "Treatment";
             return View(historyByPatient);
         }
 
@@ -58,9 +63,16 @@ namespace HospitalManagementSystem.Controllers
                 .Where(tm => tm.TreatmentId == id)
                 .ToListAsync();
 
-            ViewBag.Medicines = medicines;
-            return View(treatment);
+            var viewModel = new TreatmentRecordDetailsViewModel
+            {
+                Treatment = treatment,
+                Medicines = medicines
+            };
+
+            ViewData["ActivePage"] = "MedicalHistory";
+            return View(viewModel);
         }
+
 
         // GET: Treatment/Delete/5
         public async Task<IActionResult> Delete(int id)
