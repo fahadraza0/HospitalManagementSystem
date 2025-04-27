@@ -51,14 +51,31 @@ namespace HospitalManagementSystem.Controllers
 
             appointment.PatientId = patient.PatientId;
 
-            var doctor = await _context.Doctors.FindAsync(appointment.DoctorId);
-            if (doctor == null || !doctor.IsAvailable)
-            {
-                ModelState.AddModelError("", "Selected doctor is not available.");
-                ViewBag.Doctors = await _context.Doctors.Where(d => d.IsAvailable).ToListAsync();
+            Doctor doctor = null;
 
-                ViewData["ActivePage"] = "Appointment";
-                return View(appointment);
+            if (appointment.IsEmergency)
+            {
+                // For emergency appointments, assign the doctor directly without checking availability
+                doctor = await _context.Doctors.FindAsync(appointment.DoctorId);
+                if (doctor == null)
+                {
+                    ModelState.AddModelError("", "Selected doctor not found.");
+                    ViewBag.Doctors = await _context.Doctors.Where(d => d.IsAvailable).ToListAsync();
+                    ViewData["ActivePage"] = "Appointment";
+                    return View(appointment);
+                }
+            }
+            else
+            {
+                // For non-emergency appointments, check if the doctor is available
+                doctor = await _context.Doctors.FindAsync(appointment.DoctorId);
+                if (doctor == null || !doctor.IsAvailable)
+                {
+                    ModelState.AddModelError("", "Selected doctor is not available.");
+                    ViewBag.Doctors = await _context.Doctors.Where(d => d.IsAvailable).ToListAsync();
+                    ViewData["ActivePage"] = "Appointment";
+                    return View(appointment);
+                }
             }
 
             // Validate time slot
@@ -75,7 +92,6 @@ namespace HospitalManagementSystem.Controllers
                 return View(appointment);
             }
 
-            // Prevent overlapping appointments
             bool isOverlapping = await _context.Appointments
                 .AnyAsync(a =>
                     a.DoctorId == appointment.DoctorId &&
@@ -90,18 +106,13 @@ namespace HospitalManagementSystem.Controllers
                 return View(appointment);
             }
 
-            // Set appointment status
-            appointment.Status = appointment.IsEmergency ? "Confirmed" : "Pending";
+            // Assign doctor to patient and set appointment status
+            patient.AssignedDoctorId = doctor.DoctorId;
+            appointment.Status = appointment.IsEmergency ? "Confirmed" : "Pending"; // Emergency appointments are confirmed immediately
             appointment.CreatedAt = DateTime.Now;
 
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
-
-            // ✅ Generate bill after booking if confirmed
-            //if (appointment.Status == "Confirmed")
-            //{
-            //    await GenerateBill(appointment);
-            //}
 
             TempData["SuccessMessage"] = "Appointment booked successfully!";
 

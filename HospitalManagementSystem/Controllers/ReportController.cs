@@ -108,15 +108,15 @@ namespace HospitalManagementSystem.Controllers
                 .Select(p => new
                 {
                     PatientName = p.FullName,
-                    Ward = p.WardId,
-                    Doctor = p.AssignedDoctor.FullName,
+                    Ward = p.Ward.WardName ?? "N/A",
+                    Doctor = p.AssignedDoctor.FullName ?? "No doctor assigned",
                     DischargeDate = p.DischargeDate
                 })
                 .OrderByDescending(p => p.DischargeDate)
                 .ToListAsync();
 
-            ViewData["ActivePage"] = "MyReports";
             ViewData["ActivePage"] = "DischargeReports";
+
             return View(discharges);
         }
 
